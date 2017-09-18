@@ -14,17 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author YTENG
  */
-public class JoeSchmoeGame extends AbstractGame {
+public class ProjectSeihouGame extends AbstractGame {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
-
-    private static final byte LOADING = -1;
-    private static final byte INIT = 0;
-    private static final byte PLAYING = 1;
-    private static final byte DIE_ANIM = 2;
-    private static final byte PAUSE = 3;
-    private static final byte LOSE = 4;
-    private static final byte WIN = 5;
 
     private static final int PLAYER_R = 8;
     private static final float PLAYER_FAST_V = 85;
@@ -33,12 +25,15 @@ public class JoeSchmoeGame extends AbstractGame {
     private static final float PB_V = 120;
     private static final float PB_RATE = 0.25f;
 
-    private final AtomicInteger state = new AtomicInteger(INIT);
+    private float[] BULLET_PATTERN = {};
+    private int patternIdx = 0;
+
+    private final AtomicInteger state = new AtomicInteger(State.LOADING);
     private final AtomicBoolean fireFlag = new AtomicBoolean(true);
 
     private float bossX = 0f;
     private float bossY = 0f;
-    private float bossHp = 100f;
+    private int bossHp = 100;
 
     private float playerX = 0f;
     private float playerY = 0f;
@@ -46,6 +41,7 @@ public class JoeSchmoeGame extends AbstractGame {
 
     private float pbTimer = 0f;
     private float bfTimer = 0f;
+    private long daTimer = 0L;
 
     // These *must* have the same size
     private final List<Float> bulletX = new ArrayList<>(64);
@@ -61,7 +57,7 @@ public class JoeSchmoeGame extends AbstractGame {
     @Override
     public void init() {
         super.init();
-        frame.setTitle("joe.schmoe");
+        frame.setTitle("Project Seihou");
         frame.setSize(500, 350);
         frame.setResizable(false);
         frame.setVisible(true);
@@ -78,10 +74,11 @@ public class JoeSchmoeGame extends AbstractGame {
         pbTimer = 0f;
         bfTimer = 0f;
         fireFlag.compareAndSet(false, true);
+        patternIdx = 0;
 
         bossX = canvas.getWidth() / 2f;
         bossY = 30;
-        bossHp = 100f;
+        bossHp = 100;
 
         pbX.clear();
         pbY.clear();
@@ -96,18 +93,23 @@ public class JoeSchmoeGame extends AbstractGame {
     @Override
     public void update(long deltaT) {
         switch (state.get()) {
-        case LOADING:
-            try {
-                Thread.sleep(3000);
-                state.set(INIT);
-            } catch (InterruptedException ex) {
-                abort();
-                System.err.println("Could not complete simulated loading");
-            }
+        case State.LOADING:
+            BULLET_PATTERN = BulletPatternAssembler.assemble(""
+                    + "delay 2 spacing 30 tilt 0 size 6 speed 120\n"
+                    + "boss.radial\n"
+                    + "delay 0.2 tilt 7.5\n"
+                    + "boss.radial\n"
+                    + "tilt 15\n"
+                    + "boss.radial\n"
+                    + "tilt 22.5\n"
+                    + "boss.radial\n"
+                    + "tilt 30\n"
+                    + "boss.radial");
+            state.set(State.INIT);
             break;
-        case PLAYING:
+        case State.PLAYING:
             if (this.isKeyDown(KeyEvent.VK_ESCAPE)) {
-                state.set(PAUSE);
+                state.set(State.PAUSE);
                 return;
             }
 
@@ -135,10 +137,21 @@ public class JoeSchmoeGame extends AbstractGame {
                 }
             }
 
-            if ((bfTimer += dt) >= 2) {
-                bulletPatternRadial(bossX, bossY, (float) Math.toRadians(30), (float) Math.toRadians(0), 6f, PB_V);
-                bulletPatternRadial(bossX, bossY, (float) Math.toRadians(60), (float) Math.toRadians(15), 6f, PB_V);
+            bfTimer += dt;
+            while (bfTimer >= BULLET_PATTERN[patternIdx]) {
+                switch ((int) BULLET_PATTERN[++patternIdx]) {
+                case 1:
+                    bulletPatternRadial(bossX, bossY,
+                                        (float) Math.toRadians(BULLET_PATTERN[++patternIdx]),
+                                        (float) Math.toRadians(BULLET_PATTERN[++patternIdx]),
+                                        (float) Math.PI * 2f,
+                                        BULLET_PATTERN[++patternIdx], BULLET_PATTERN[++patternIdx]);
+                    break;
+                }
                 bfTimer = 0f;
+                if (++patternIdx >= BULLET_PATTERN.length) {
+                    patternIdx = 0;
+                }
             }
 
             if ((pbTimer += dt) >= PB_RATE) {
@@ -186,15 +199,18 @@ public class JoeSchmoeGame extends AbstractGame {
             }
 
             for (int i = 0; i < bulletR.size(); ++i) {
+                // Prevent awkard "The bullet for sure did not touch me scenarios"
+                // the radius of the player is made smaller (by 1 pixel)
                 if (circlesCollide(bulletX.get(i), bulletY.get(i), bulletR.get(i),
-                                   playerX, playerY, PLAYER_R)) {
+                                   playerX, playerY, PLAYER_R - 1)) {
                     bulletR.remove(i);
                     bulletX.remove(i);
                     bulletY.remove(i);
                     bulletDx.remove(i);
                     bulletDy.remove(i);
-                    state.set(DIE_ANIM);
-                    break;
+                    daTimer = 0L;
+                    state.set((--playerHp <= 0) ? State.LOSE : State.DIE_ANIM);
+                    return;
                 }
             }
 
@@ -204,39 +220,34 @@ public class JoeSchmoeGame extends AbstractGame {
                     pbR.remove(i);
                     pbX.remove(i);
                     pbY.remove(i);
-                    if ((bossHp -= 0.5f) <= 0f) {
-                        state.set(WIN);
+                    if ((bossHp -= 1) <= 0) {
+                        state.set(State.WIN);
+                        return;
                     }
                     break;
                 }
             }
             break;
-        case DIE_ANIM:
-            try {
-                if (--playerHp <= 0) {
-                    state.set(LOSE);
-                    return;
-                }
-                Thread.sleep(1000);
-                state.set(PLAYING);
-            } catch (InterruptedException ex) {
-                abort();
+        case State.DIE_ANIM:
+            if ((daTimer += deltaT) < 1000) {
+                return;
             }
+            state.set(State.PLAYING);
             break;
-        case INIT:
+        case State.INIT:
             reset();
         // FALLTHROUGH
-        case PAUSE:
+        case State.PAUSE:
             if (this.isKeyDown(KeyEvent.VK_ENTER)) {
-                state.set(PLAYING);
+                state.set(State.PLAYING);
                 return;
             }
             if (this.isKeyDown(KeyEvent.VK_Q)) {
                 abort();
             }
             break;
-        case LOSE:
-        case WIN:
+        case State.LOSE:
+        case State.WIN:
             if (this.isKeyDown(KeyEvent.VK_ENTER)) {
                 while (this.isKeyDown(KeyEvent.VK_ENTER)) {
                     try {
@@ -244,7 +255,10 @@ public class JoeSchmoeGame extends AbstractGame {
                     } catch (InterruptedException ex) {
                     }
                 }
-                state.set(INIT);
+                state.set(State.INIT);
+            }
+            if (this.isKeyDown(KeyEvent.VK_Q)) {
+                abort();
             }
             break;
         default:
@@ -257,7 +271,7 @@ public class JoeSchmoeGame extends AbstractGame {
     }
 
     private void bulletPatternRadial(float originX, float originY,
-                                     float spacing, float tilt,
+                                     float spacing, float tilt, float upperBound,
                                      float size, float speed) {
         // o -> apply [radial]
         //
@@ -269,7 +283,7 @@ public class JoeSchmoeGame extends AbstractGame {
             return;
         }
 
-        for (float counter = 0; counter < 2 * Math.PI; counter += spacing) {
+        for (float counter = 0; counter < upperBound; counter += spacing) {
             bulletR.add(size);
             bulletX.add(originX);
             bulletY.add(originY);
@@ -285,37 +299,37 @@ public class JoeSchmoeGame extends AbstractGame {
         g.setColor(Color.black);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         switch (state.get()) {
-        case LOADING:
+        case State.LOADING:
             g.setColor(Color.gray);
             g.drawString("Now loading...", 0, 12);
             break;
-        case INIT:
+        case State.INIT:
             g.setColor(Color.blue);
             g.drawString("Project Seihou", canvas.getWidth() / 2 - 40, 60);
             g.drawString("[ENTER]", canvas.getWidth() / 2 - 24, 82);
             break;
-        case PLAYING:
+        case State.PLAYING:
             drawGame(g);
             break;
-        case DIE_ANIM:
+        case State.DIE_ANIM:
             drawGame(g);
             g.setColor(LIGHT_GRAY_SHADER);
             g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
             g.setColor(Color.red);
             g.drawString("HP - 1", canvas.getWidth() / 2 - 16, 60);
             break;
-        case PAUSE:
+        case State.PAUSE:
             drawGame(g);
             g.setColor(LIGHT_GRAY_SHADER);
             g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
             g.setColor(Color.blue);
             g.drawString("PAUSED", canvas.getWidth() / 2 - 24, 60);
             break;
-        case LOSE:
+        case State.LOSE:
             g.setColor(Color.BLUE);
             g.drawString("GAME OVER", canvas.getWidth() / 2 - 32, 60);
             break;
-        case WIN:
+        case State.WIN:
             g.setColor(Color.BLUE);
             g.drawString("+1", canvas.getWidth() / 2 - 8, 60);
             break;
