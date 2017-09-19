@@ -16,7 +16,7 @@ import javax.swing.JPanel;
  *
  * @author YTENG
  */
-public class AbstractGame implements Game {
+public abstract class Java2DGame implements Game, GameCanvas, KeyInput {
 
     protected final JFrame frame;
     protected final JPanel canvas;
@@ -24,11 +24,11 @@ public class AbstractGame implements Game {
     private boolean runFlag;
     private BitSet keybuf;
 
-    public AbstractGame() {
+    public Java2DGame() {
         this("");
     }
 
-    public AbstractGame(String title) {
+    public Java2DGame(String title) {
         this.frame = new JFrame(title);
         this.canvas = new JPanel() {
             @Override
@@ -42,14 +42,16 @@ public class AbstractGame implements Game {
         this.frame.setContentPane(canvas);
     }
 
-    protected boolean isKeyDown(int keycode) {
+    @Override
+    public boolean isKeyDown(int keycode) {
         if (keycode < keybuf.length()) {
             return keybuf.get(keycode);
         }
         return false;
     }
 
-    protected boolean isKeyUp(int keycode) {
+    @Override
+    public boolean isKeyUp(int keycode) {
         if (keycode < keybuf.length()) {
             return !keybuf.get(keycode);
         }
@@ -62,21 +64,21 @@ public class AbstractGame implements Game {
         this.frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                AbstractGame.this.runFlag = false;
+                Java2DGame.this.runFlag = false;
             }
         });
         this.frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() < AbstractGame.this.keybuf.size()) {
-                    AbstractGame.this.keybuf.set(e.getKeyCode());
+                if (e.getKeyCode() < Java2DGame.this.keybuf.size()) {
+                    Java2DGame.this.keybuf.set(e.getKeyCode());
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() < AbstractGame.this.keybuf.size()) {
-                    AbstractGame.this.keybuf.clear(e.getKeyCode());
+                if (e.getKeyCode() < Java2DGame.this.keybuf.size()) {
+                    Java2DGame.this.keybuf.clear(e.getKeyCode());
                 }
             }
         });
@@ -105,6 +107,17 @@ public class AbstractGame implements Game {
         frame.repaint();
     }
 
+    @Override
     public void render(Graphics g) {
+    }
+
+    @Override
+    public int getHeight() {
+        return canvas.getHeight();
+    }
+
+    @Override
+    public int getWidth() {
+        return canvas.getWidth();
     }
 }

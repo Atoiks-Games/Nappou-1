@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author YTENG
  */
-public class ProjectSeihouGame extends AbstractGame {
+public class ProjectSeihouGame extends Java2DGame {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -102,7 +102,7 @@ public class ProjectSeihouGame extends AbstractGame {
         case State.LOADING:
             BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
                     this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Tutorial.spa")
-            ), 10));
+            ), 30));
             BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
                     this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Boss1.spa")
             ), 125));
@@ -238,7 +238,7 @@ public class ProjectSeihouGame extends AbstractGame {
                 // Prevent awkard "The bullet for sure did not touch me scenarios"
                 // the radius of the player is made smaller (by 1 pixel)
                 if (circlesCollide(bulletX.get(i), bulletY.get(i), bulletR.get(i),
-                                   playerX, playerY, PLAYER_R - 1)) {
+                                   playerX, playerY, PLAYER_R - 2)) {
                     bulletR.remove(i);
                     bulletX.remove(i);
                     bulletY.remove(i);
