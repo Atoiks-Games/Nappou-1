@@ -64,10 +64,10 @@ public class ProjectSeihouGame extends Java2DGame {
         frame.setTitle("Project Seihou");
         frame.setSize(500, 350);
         frame.setResizable(false);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
         reset();
-        System.out.println("GAME STARTED");
     }
 
     private void reset() {
@@ -410,6 +410,5 @@ public class ProjectSeihouGame extends Java2DGame {
     @Override
     public void destroy() {
         super.destroy();
-        System.out.println("GAME ENDED");
     }
 }
