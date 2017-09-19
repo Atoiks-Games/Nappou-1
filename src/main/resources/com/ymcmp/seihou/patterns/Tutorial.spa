@@ -1,0 +1,17 @@
+delay 2 spacing 30 tilt 15 size 6 speed 100
+boss.radial
+delay 0.5 spacing 15 tilt 75 size 4 speed 120
+limit 45
+boss.limrad
+delay 0.1
+boss.limrad
+delay 0.1
+boss.limrad
+delay 0.1
+boss.limrad
+delay 0.1
+boss.limrad
+delay 0.1
+boss.limrad
+delay 0.1
+boss.limrad

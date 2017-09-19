@@ -13,6 +13,7 @@ public final class State {
     public static final byte PAUSE = 3;
     public static final byte LOSE = 4;
     public static final byte WIN = 5;
+    public static final byte ADVANCE = 6;
 
     private State() {
     }

@@ -19,13 +19,15 @@ public class ProjectSeihouGame extends AbstractGame {
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
     private static final int PLAYER_R = 8;
-    private static final float PLAYER_FAST_V = 85;
-    private static final float PLAYER_SLOW_V = 40;
+    private static final float PLAYER_FAST_V = 100;
+    private static final float PLAYER_SLOW_V = 45;
 
     private static final float PB_V = 120;
     private static final float PB_RATE = 0.25f;
 
-    private float[] BULLET_PATTERN = {};
+    private final List<BossData> BULLET_PATTERNS = new ArrayList<>();
+    private float[] patternFrame = {};
+    private int patternFrameIdx = 0;
     private int patternIdx = 0;
 
     private final AtomicInteger state = new AtomicInteger(State.LOADING);
@@ -33,7 +35,9 @@ public class ProjectSeihouGame extends AbstractGame {
 
     private float bossX = 0f;
     private float bossY = 0f;
-    private int bossHp = 100;
+    private float bossDx = 0f;
+    private float bossDy = 0f;
+    private int bossHp = 0;
 
     private float playerX = 0f;
     private float playerY = 0f;
@@ -78,7 +82,9 @@ public class ProjectSeihouGame extends AbstractGame {
 
         bossX = canvas.getWidth() / 2f;
         bossY = 30;
-        bossHp = 100;
+        bossDx = 0;
+        bossDy = 0;
+        bossHp = 0;
 
         pbX.clear();
         pbY.clear();
@@ -94,17 +100,12 @@ public class ProjectSeihouGame extends AbstractGame {
     public void update(long deltaT) {
         switch (state.get()) {
         case State.LOADING:
-            BULLET_PATTERN = BulletPatternAssembler.assemble(""
-                    + "delay 2 spacing 30 tilt 0 size 6 speed 120\n"
-                    + "boss.radial\n"
-                    + "delay 0.2 tilt 7.5\n"
-                    + "boss.radial\n"
-                    + "tilt 15\n"
-                    + "boss.radial\n"
-                    + "tilt 22.5\n"
-                    + "boss.radial\n"
-                    + "tilt 30\n"
-                    + "boss.radial");
+            BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Tutorial.spa")
+            ), 10));
+            BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Boss1.spa")
+            ), 125));
             state.set(State.INIT);
             break;
         case State.PLAYING:
@@ -138,21 +139,56 @@ public class ProjectSeihouGame extends AbstractGame {
             }
 
             bfTimer += dt;
-            while (bfTimer >= BULLET_PATTERN[patternIdx]) {
-                switch ((int) BULLET_PATTERN[++patternIdx]) {
+            while (bfTimer >= patternFrame[patternIdx]) {
+                switch ((int) patternFrame[++patternIdx]) {
+                case 0:
+                    break;
                 case 1:
                     bulletPatternRadial(bossX, bossY,
-                                        (float) Math.toRadians(BULLET_PATTERN[++patternIdx]),
-                                        (float) Math.toRadians(BULLET_PATTERN[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
                                         (float) Math.PI * 2f,
-                                        BULLET_PATTERN[++patternIdx], BULLET_PATTERN[++patternIdx]);
+                                        patternFrame[++patternIdx], patternFrame[++patternIdx]);
+                    break;
+                case 7:
+                    bulletPatternRadial(bossX, bossY,
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        patternFrame[++patternIdx], patternFrame[++patternIdx]);
+                    break;
+                case 2:
+                    bulletPatternRadial(patternFrame[++patternIdx], patternFrame[++patternIdx],
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        (float) Math.toRadians(patternFrame[++patternIdx]),
+                                        patternFrame[++patternIdx], patternFrame[++patternIdx]);
+                    break;
+                case 3:
+                    bossX = patternFrame[++patternIdx];
+                    bossY = patternFrame[++patternIdx];
+                    break;
+                case 4:
+                    bossX += patternFrame[++patternIdx];
+                    bossY += patternFrame[++patternIdx];
+                    break;
+                case 5:
+                    bossDx = patternFrame[++patternIdx];
+                    bossDy = patternFrame[++patternIdx];
+                    break;
+                case 6:
+                    bossDx += patternFrame[++patternIdx];
+                    bossDy += patternFrame[++patternIdx];
                     break;
                 }
                 bfTimer = 0f;
-                if (++patternIdx >= BULLET_PATTERN.length) {
+                if (++patternIdx >= patternFrame.length) {
                     patternIdx = 0;
                 }
             }
+
+            bossX += bossDx * dt;
+            bossY += bossDy * dt;
 
             if ((pbTimer += dt) >= PB_RATE) {
                 fireFlag.set(true);
@@ -221,13 +257,14 @@ public class ProjectSeihouGame extends AbstractGame {
                     pbX.remove(i);
                     pbY.remove(i);
                     if ((bossHp -= 1) <= 0) {
-                        state.set(State.WIN);
+                        state.set((++patternFrameIdx < BULLET_PATTERNS.size()) ? State.ADVANCE : State.WIN);
                         return;
                     }
                     break;
                 }
             }
             break;
+
         case State.DIE_ANIM:
             if ((daTimer += deltaT) < 1000) {
                 return;
@@ -235,8 +272,15 @@ public class ProjectSeihouGame extends AbstractGame {
             state.set(State.PLAYING);
             break;
         case State.INIT:
-            reset();
+            patternFrameIdx = 0;
         // FALLTHROUGH
+        case State.ADVANCE: {
+            reset();
+            final BossData data = BULLET_PATTERNS.get(patternFrameIdx);
+            patternFrame = data.bulletSeq;
+            bossHp = data.hp;
+            // FALLTHROUGH
+        }
         case State.PAUSE:
             if (this.isKeyDown(KeyEvent.VK_ENTER)) {
                 state.set(State.PLAYING);
@@ -331,7 +375,11 @@ public class ProjectSeihouGame extends AbstractGame {
             break;
         case State.WIN:
             g.setColor(Color.BLUE);
-            g.drawString("+1", canvas.getWidth() / 2 - 8, 60);
+            g.drawString("YOU WIN", canvas.getWidth() / 2 - 24, 60);
+            break;
+        case State.ADVANCE:
+            g.setColor(Color.BLUE);
+            g.drawString("NEXT LEVEL", canvas.getWidth() / 2 - 32, 60);
             break;
         default:
         }
@@ -340,15 +388,22 @@ public class ProjectSeihouGame extends AbstractGame {
     private void drawGame(Graphics g) {
         g.setColor(Color.white);
         g.fillOval((int) playerX - PLAYER_R, (int) playerY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
-        for (int i = 0; i < pbR.size(); ++i) {
-            final float r = pbR.get(i);
-            g.drawOval((int) (pbX.get(i) - r), (int) (pbY.get(i) - r), (int) (r * 2), (int) (r * 2));
+        try {
+            for (int i = 0; i < pbR.size(); ++i) {
+                final float r = pbR.get(i);
+                g.drawOval((int) (pbX.get(i) - r), (int) (pbY.get(i) - r), (int) (r * 2), (int) (r * 2));
+            }
+        } catch (IndexOutOfBoundsException ex) {
         }
+
         g.setColor(Color.yellow);
         g.fillOval((int) bossX - PLAYER_R, (int) bossY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
-        for (int i = 0; i < bulletX.size(); ++i) {
-            final float r = bulletR.get(i);
-            g.drawOval((int) (bulletX.get(i) - r), (int) (bulletY.get(i) - r), (int) (r * 2), (int) (r * 2));
+        try {
+            for (int i = 0; i < bulletX.size(); ++i) {
+                final float r = bulletR.get(i);
+                g.drawOval((int) (bulletX.get(i) - r), (int) (bulletY.get(i) - r), (int) (r * 2), (int) (r * 2));
+            }
+        } catch (IndexOutOfBoundsException ex) {
         }
     }
 
