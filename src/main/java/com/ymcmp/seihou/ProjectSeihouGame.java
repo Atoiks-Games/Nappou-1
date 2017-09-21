@@ -3,12 +3,14 @@ package com.ymcmp.seihou;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -24,6 +26,7 @@ public class ProjectSeihouGame extends Java2DGame {
 
     private static final float PB_V = 120;
     private static final float PB_RATE = 0.25f;
+    private static final float PROTECTION_RATE = 3f;
 
     private final List<BossData> BULLET_PATTERNS = new ArrayList<>();
     private float[] patternFrame = {};
@@ -31,13 +34,15 @@ public class ProjectSeihouGame extends Java2DGame {
     private int patternIdx = 0;
 
     private final AtomicInteger state = new AtomicInteger(State.LOADING);
-    private final AtomicBoolean fireFlag = new AtomicBoolean(true);
+    private boolean fireFlag = true;
+    private boolean protectionFlag = false;
 
     private float bossX = 0f;
     private float bossY = 0f;
     private float bossDx = 0f;
     private float bossDy = 0f;
     private int bossHp = 0;
+    private int timeLimit = 0;
 
     private float playerX = 0f;
     private float playerY = 0f;
@@ -45,7 +50,14 @@ public class ProjectSeihouGame extends Java2DGame {
 
     private float pbTimer = 0f;
     private float bfTimer = 0f;
+    private float pgTimer = 0f;
     private long daTimer = 0L;
+    private long pTimer = 0L;
+
+    private int initOptSel = 0;
+
+    private BufferedImage imgName;
+    private BufferedImage imgInstructions;
 
     // These *must* have the same size
     private final List<Float> bulletX = new ArrayList<>(64);
@@ -77,7 +89,8 @@ public class ProjectSeihouGame extends Java2DGame {
 
         pbTimer = 0f;
         bfTimer = 0f;
-        fireFlag.compareAndSet(false, true);
+        pgTimer = 0f;
+        fireFlag = true;
         patternIdx = 0;
 
         bossX = canvas.getWidth() / 2f;
@@ -85,6 +98,7 @@ public class ProjectSeihouGame extends Java2DGame {
         bossDx = 0;
         bossDy = 0;
         bossHp = 0;
+        timeLimit = 0;
 
         pbX.clear();
         pbY.clear();
@@ -100,12 +114,23 @@ public class ProjectSeihouGame extends Java2DGame {
     public void update(long deltaT) {
         switch (state.get()) {
         case State.LOADING:
-            BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Tutorial.spa")
-            ), 30));
-            BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Boss1.spa")
-            ), 125));
+            try {
+                BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                        this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Tutorial.spa")
+                ), 30));
+                BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                        this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Boss1.spa")
+                ), 125, 200));
+                imgName = ImageIO.read(
+                        this.getClass().getResourceAsStream("/com/ymcmp/seihou/name.bmp")
+                );
+                imgInstructions = ImageIO.read(
+                        this.getClass().getResourceAsStream("/com/ymcmp/seihou/instructions.bmp")
+                );
+            } catch (IOException ex) {
+                abort();
+                return;
+            }
             state.set(State.INIT);
             break;
         case State.PLAYING:
@@ -136,6 +161,11 @@ public class ProjectSeihouGame extends Java2DGame {
                 if (playerY - dv > 0) {
                     playerY -= dv;
                 }
+            }
+
+            if (timeLimit > 0 && (pgTimer += dt) >= timeLimit) {
+                advanceStage();
+                return;
             }
 
             bfTimer += dt;
@@ -191,10 +221,10 @@ public class ProjectSeihouGame extends Java2DGame {
             bossY += bossDy * dt;
 
             if ((pbTimer += dt) >= PB_RATE) {
-                fireFlag.set(true);
+                fireFlag = true;
             }
-            if (fireFlag.get() && this.isKeyDown(KeyEvent.VK_Z)) {
-                fireFlag.set(false);
+            if (fireFlag && this.isKeyDown(KeyEvent.VK_Z)) {
+                fireFlag = false;
                 pbTimer = 0f;
                 pbX.add(playerX);
                 pbY.add(playerY);
@@ -234,19 +264,28 @@ public class ProjectSeihouGame extends Java2DGame {
                 pbY.set(i, pbY.get(i) - PB_V * dt);
             }
 
-            for (int i = 0; i < bulletR.size(); ++i) {
-                // Prevent awkard "The bullet for sure did not touch me scenarios"
-                // the radius of the player is made smaller (by 1 pixel)
-                if (circlesCollide(bulletX.get(i), bulletY.get(i), bulletR.get(i),
-                                   playerX, playerY, PLAYER_R - 2)) {
-                    bulletR.remove(i);
-                    bulletX.remove(i);
-                    bulletY.remove(i);
-                    bulletDx.remove(i);
-                    bulletDy.remove(i);
-                    daTimer = 0L;
-                    state.set((--playerHp <= 0) ? State.LOSE : State.DIE_ANIM);
-                    return;
+            if (protectionFlag) {
+                if ((pTimer += deltaT) > PROTECTION_RATE * 1000) {
+                    pTimer = 0L;
+                    protectionFlag = false;
+                }
+            }
+
+            if (!protectionFlag) {
+                for (int i = 0; i < bulletR.size(); ++i) {
+                    // Prevent awkard "The bullet for sure did not touch me scenarios"
+                    // the radius of the player is made smaller
+                    if (circlesCollide(bulletX.get(i), bulletY.get(i), bulletR.get(i),
+                                       playerX, playerY, PLAYER_R - 2)) {
+                        bulletR.remove(i);
+                        bulletX.remove(i);
+                        bulletY.remove(i);
+                        bulletDx.remove(i);
+                        bulletDy.remove(i);
+                        daTimer = 0L;
+                        state.set((--playerHp <= 0) ? State.LOSE : State.DIE_ANIM);
+                        return;
+                    }
                 }
             }
 
@@ -257,7 +296,7 @@ public class ProjectSeihouGame extends Java2DGame {
                     pbX.remove(i);
                     pbY.remove(i);
                     if ((bossHp -= 1) <= 0) {
-                        state.set((++patternFrameIdx < BULLET_PATTERNS.size()) ? State.ADVANCE : State.WIN);
+                        advanceStage();
                         return;
                     }
                     break;
@@ -269,17 +308,34 @@ public class ProjectSeihouGame extends Java2DGame {
             if ((daTimer += deltaT) < 1000) {
                 return;
             }
+            protectionFlag = true;
             state.set(State.PLAYING);
             break;
         case State.INIT:
             patternFrameIdx = 0;
-        // FALLTHROUGH
+            if (this.isKeyPressed(KeyEvent.VK_UP)) {
+                --initOptSel;
+            }
+            if (this.isKeyPressed(KeyEvent.VK_DOWN)) {
+                ++initOptSel;
+            }
+            if (this.isKeyPressed(KeyEvent.VK_ENTER)) {
+                switch (initOptSel) {
+                case 0:
+                    doAdvance();
+                    state.set(State.PLAYING);
+                    return;
+                case 1:
+                    state.set(State.HELP);
+                    return;
+                case 2:
+                    abort();
+                    return;
+                }
+            }
+            break;
         case State.ADVANCE: {
-            reset();
-            final BossData data = BULLET_PATTERNS.get(patternFrameIdx);
-            patternFrame = data.bulletSeq;
-            bossHp = data.hp;
-            // FALLTHROUGH
+            doAdvance();
         }
         case State.PAUSE:
             if (this.isKeyDown(KeyEvent.VK_ENTER)) {
@@ -292,13 +348,8 @@ public class ProjectSeihouGame extends Java2DGame {
             break;
         case State.LOSE:
         case State.WIN:
-            if (this.isKeyDown(KeyEvent.VK_ENTER)) {
-                while (this.isKeyDown(KeyEvent.VK_ENTER)) {
-                    try {
-                        Thread.sleep(0);
-                    } catch (InterruptedException ex) {
-                    }
-                }
+        case State.HELP:
+            if (this.isKeyPressed(KeyEvent.VK_ENTER)) {
                 state.set(State.INIT);
             }
             if (this.isKeyDown(KeyEvent.VK_Q)) {
@@ -307,6 +358,18 @@ public class ProjectSeihouGame extends Java2DGame {
             break;
         default:
         }
+    }
+
+    private void advanceStage() {
+        state.set((++patternFrameIdx < BULLET_PATTERNS.size()) ? State.ADVANCE : State.WIN);
+    }
+
+    private void doAdvance() {
+        reset();
+        final BossData data = BULLET_PATTERNS.get(patternFrameIdx);
+        patternFrame = data.bulletSeq;
+        bossHp = data.hp;
+        timeLimit = data.timeout;
     }
 
     private static boolean circlesCollide(float x1, float y1, float r1,
@@ -348,9 +411,31 @@ public class ProjectSeihouGame extends Java2DGame {
             g.drawString("Now loading...", 0, 12);
             break;
         case State.INIT:
-            g.setColor(Color.blue);
-            g.drawString("Project Seihou", canvas.getWidth() / 2 - 40, 60);
-            g.drawString("[ENTER]", canvas.getWidth() / 2 - 24, 82);
+            g.drawImage(imgName, 22, 0, null);
+            g.setColor(Color.cyan);
+            g.drawString("START", canvas.getWidth() / 2 - 16, 82);
+            g.drawString("HELP", canvas.getWidth() / 2 - 12, 104);
+            g.drawString("QUIT", canvas.getWidth() / 2 - 12, 136);
+            g.drawString("Made with love by Atoiks Games", 240, 288);
+            g.drawString("Visit us at http://atoiks-games.github.io", 240, 300);
+
+            switch (initOptSel) {
+            case 0:
+                g.drawLine(canvas.getWidth() / 2 - 10, 82, canvas.getWidth() / 2 + 10, 82);
+                break;
+            case 1:
+                g.drawLine(canvas.getWidth() / 2 - 10, 104, canvas.getWidth() / 2 + 10, 104);
+                break;
+            case 2:
+                g.drawLine(canvas.getWidth() / 2 - 10, 136, canvas.getWidth() / 2 + 10, 136);
+                break;
+            default:
+                if (initOptSel < 0) {
+                    initOptSel = 2;
+                }
+                initOptSel %= 3;
+                break;
+            }
             break;
         case State.PLAYING:
             drawGame(g);
@@ -381,12 +466,18 @@ public class ProjectSeihouGame extends Java2DGame {
             g.setColor(Color.BLUE);
             g.drawString("NEXT LEVEL", canvas.getWidth() / 2 - 32, 60);
             break;
+        case State.HELP:
+            g.setColor(Color.cyan);
+            g.drawImage(imgInstructions, 0, 0, null);
+            g.drawString("BACK", canvas.getWidth() / 2 - 12, 240);
+            g.drawLine(canvas.getWidth() / 2 - 10, 240, canvas.getWidth() / 2 + 10, 240);
+            break;
         default:
         }
     }
 
     private void drawGame(Graphics g) {
-        g.setColor(Color.white);
+        g.setColor(protectionFlag ? Color.green : Color.white);
         g.fillOval((int) playerX - PLAYER_R, (int) playerY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
         try {
             for (int i = 0; i < pbR.size(); ++i) {

@@ -14,6 +14,7 @@ public final class State {
     public static final byte LOSE = 4;
     public static final byte WIN = 5;
     public static final byte ADVANCE = 6;
+    public static final byte HELP = 7;
 
     private State() {
     }
