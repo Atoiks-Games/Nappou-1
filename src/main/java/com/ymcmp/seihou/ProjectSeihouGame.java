@@ -22,10 +22,10 @@ public class ProjectSeihouGame extends Java2DGame {
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
     private static final int PLAYER_R = 8;
-    private static final float PLAYER_FAST_V = 100;
-    private static final float PLAYER_SLOW_V = 45;
+    private static final float PLAYER_FAST_V = 140;
+    private static final float PLAYER_SLOW_V = 85;
 
-    private static final float PB_V = 120;
+    private static final float PB_V = 170;
     private static final float PB_RATE = 0.25f;
     private static final float PROTECTION_RATE = 3f;
 
@@ -78,6 +78,15 @@ public class ProjectSeihouGame extends Java2DGame {
     @Override
     public void init() {
         super.init();
+		try {
+			frame.setIconImage(ImageIO.read(
+					this.getClass().getResourceAsStream("/com/ymcmp/seihou/icon.png")
+			));
+		} catch (IOException ex) {
+			abort();
+			return;
+		}
+
         frame.setTitle("Project Seihou");
         frame.setSize(FRAME_WIDTH, 350);
         frame.setResizable(false);
@@ -144,11 +153,9 @@ public class ProjectSeihouGame extends Java2DGame {
                     return;
                 }
 
-                final float playerV = this.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V;
                 final float dt = deltaT / 1000f;
-                final float dv = playerV * dt;
 
-                procPlayerMovement(dv);
+                procPlayerMovement(dt);
                 if (updateTimerLimit(dt)) {
                     return;
                 }
@@ -175,7 +182,7 @@ public class ProjectSeihouGame extends Java2DGame {
                     return;
                 }
 
-                if ((daTimer += deltaT) < 1000) {
+                if ((daTimer += deltaT) < 250) {
                     return;
                 }
                 daTimer = 0;
@@ -215,7 +222,8 @@ public class ProjectSeihouGame extends Java2DGame {
                     return;
                 }
                 if (this.isKeyDown(KeyEvent.VK_Q)) {
-                    abort();
+                    state.set(State.INIT);
+					return;
                 }
                 break;
             case State.LOSE:
@@ -391,7 +399,9 @@ public class ProjectSeihouGame extends Java2DGame {
         return false;
     }
 
-    private void procPlayerMovement(final float dv) {
+    private void procPlayerMovement(final float dt) {
+        final float dv = (this.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
+
         if (this.isKeyDown(KeyEvent.VK_RIGHT)) {
             if (playerX + dv < GAME_FRAME_WIDTH) {
                 playerX += dv;
