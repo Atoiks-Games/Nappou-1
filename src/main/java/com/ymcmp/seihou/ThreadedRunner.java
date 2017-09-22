@@ -15,7 +15,7 @@ public final class ThreadedRunner implements GameRunner {
     private final ExecutorService pool;
 
     private ThreadedRunner() {
-        this.pool = Executors.newFixedThreadPool(2);
+        this.pool = Executors.newFixedThreadPool(1);
     }
 
     @Override

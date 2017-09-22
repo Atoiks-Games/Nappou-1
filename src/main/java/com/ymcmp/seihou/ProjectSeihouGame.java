@@ -78,14 +78,14 @@ public class ProjectSeihouGame extends Java2DGame {
     @Override
     public void init() {
         super.init();
-		try {
-			frame.setIconImage(ImageIO.read(
-					this.getClass().getResourceAsStream("/com/ymcmp/seihou/icon.png")
-			));
-		} catch (IOException ex) {
-			abort();
-			return;
-		}
+        try {
+            frame.setIconImage(ImageIO.read(
+                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/icon.png")
+            ));
+        } catch (IOException ex) {
+            abort();
+            return;
+        }
 
         frame.setTitle("Project Seihou");
         frame.setSize(FRAME_WIDTH, 350);
