@@ -223,7 +223,7 @@ public class ProjectSeihouGame extends Java2DGame {
                 }
                 if (this.isKeyDown(KeyEvent.VK_Q)) {
                     state.set(State.INIT);
-					return;
+                    return;
                 }
                 break;
             case State.LOSE:
@@ -255,7 +255,7 @@ public class ProjectSeihouGame extends Java2DGame {
                 // Prevent awkard "The bullet for sure did not touch me scenarios"
                 // the radius of the player is made smaller
                 if (circlesCollide(bulletX.get(i), bulletY.get(i), bulletR.get(i),
-                        playerX, playerY, PLAYER_R - 2)) {
+                        playerX, playerY, PLAYER_R / 2)) {
                     bulletR.remove(i);
                     bulletX.remove(i);
                     bulletY.remove(i);
