@@ -1,4 +1,4 @@
-# Project Seihou [![Build Status](https://travis-ci.org/plankp/Project-Seihou.svg?branch=master)](https://travis-ci.org/plankp/Project-Seihou)
+# Project Seihou [![Build Status](https://travis-ci.org/Atoiks-Games/Project-Seihou.svg?branch=master)](https://travis-ci.org/Atoiks-Games/Project-Seihou)
 
 Bullet-hell game in java. Name is inspired from Touhou Project.
 
