@@ -1,4 +1,21 @@
 {
+    delay 0
+    x 10 y 0 limit 170
+    enemy.weak
+    x 370 y 0 limit 160
+    enemy.weak
+    delay 0.1
+    x 10 y 0
+    enemy.weak
+    x 370 y 0 limit 170
+    enemy.weak
+    delay 0.1
+    x 10 y 0 limit 160
+    enemy.weak
+    x 370 y 0
+    enemy.weak
+} weaklings
+{
     delay 2 spacing 30 tilt 0 size 6 speed 120
     boss.radial
     delay 0.2 tilt 7.5
@@ -59,6 +76,19 @@
     boss.limrad
     boss.limrad
 } speedy
+
+x 0 y -20
+boss.setspd
+
+group weaklings
+group weaklings
+group weaklings
+group weaklings
+
+delay 5 y 20
+boss.setspd
+
+label loop
 
 group pos_radial
 group neg_radial
@@ -122,3 +152,5 @@ boss.setspd
 
 delay 2 x 0 y 0
 boss.setspd
+
+jmp loop
