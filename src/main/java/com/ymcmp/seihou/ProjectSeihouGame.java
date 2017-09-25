@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+
 import java.io.IOException;
 
 import java.util.List;
@@ -49,10 +50,7 @@ public class ProjectSeihouGame extends Java2DGame {
     private int bossPts = 0;
     private int timeLimit = 0;
 
-    private float playerX = 0f;
-    private float playerY = 0f;
-    private int playerHp = 5;
-    private int playerScore = 0;
+    private final PlayerManager player = new PlayerManager();
 
     private float pbTimer = 0f;
     private float bfTimer = 0f;
@@ -65,11 +63,7 @@ public class ProjectSeihouGame extends Java2DGame {
     private BufferedImage imgName;
     private BufferedImage imgInstructions;
 
-    private final List<Float> enemyBulletX = new ArrayList<>(64);
-    private final List<Float> enemyBulletY = new ArrayList<>(64);
-    private final List<Float> enemyBulletR = new ArrayList<>(64);
-    private final List<Float> enemyBulletDx = new ArrayList<>(64);
-    private final List<Float> enemyBulletDy = new ArrayList<>(64);
+    private final BulletManager enemyBullets = new BulletManager(64);
 
     private final List<Float> playerBulletX = new ArrayList<>(20);
     private final List<Float> playerBulletY = new ArrayList<>(20);
@@ -103,13 +97,15 @@ public class ProjectSeihouGame extends Java2DGame {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
+        enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
+
         reset();
     }
 
     private void reset() {
-        playerX = GAME_CANVAS_WIDTH / 2f;
-        playerY = canvas.getHeight() - 20;
-        playerHp = 5;
+        player.setPosition(GAME_CANVAS_WIDTH / 2f, canvas.getHeight() - 20);
+        player.resetHp();
+        player.deltaHp(5);
 
         pbTimer = 0f;
         bfTimer = 0f;
@@ -125,11 +121,7 @@ public class ProjectSeihouGame extends Java2DGame {
         bossPts = 0;
         timeLimit = 0;
 
-        enemyBulletX.clear();
-        enemyBulletY.clear();
-        enemyBulletR.clear();
-        enemyBulletDx.clear();
-        enemyBulletDy.clear();
+        enemyBullets.clear();
 
         playerBulletX.clear();
         playerBulletY.clear();
@@ -207,6 +199,7 @@ public class ProjectSeihouGame extends Java2DGame {
                 break;
             }
             case State.INIT:
+                player.resetScore();
                 patternFrameIdx = 0;
                 if (this.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
@@ -267,20 +260,10 @@ public class ProjectSeihouGame extends Java2DGame {
 
     private boolean upateBullet() {
         if (!protectionFlag) {
-            for (int i = 0; i < enemyBulletR.size(); ++i) {
-                // Prevent awkard "The bullet for sure did not touch me scenarios"
-                // the radius of the player is made smaller
-                if (circlesCollide(enemyBulletX.get(i), enemyBulletY.get(i), enemyBulletR.get(i),
-                        playerX, playerY, PLAYER_R / 2)) {
-                    enemyBulletR.remove(i);
-                    enemyBulletX.remove(i);
-                    enemyBulletY.remove(i);
-                    enemyBulletDx.remove(i);
-                    enemyBulletDy.remove(i);
-                    daTimer = 0L;
-                    state.set((--playerHp <= 0) ? State.LOSE : State.DIE_ANIM);
-                    return true;
-                }
+            if (enemyBullets.testCollision(player.getX(), player.getY(), PLAYER_R / 2)) {
+                daTimer = 0L;
+                state.set((player.deltaHp(-1) <= 0) ? State.LOSE : State.DIE_ANIM);
+                return true;
             }
         }
         return false;
@@ -301,26 +284,7 @@ public class ProjectSeihouGame extends Java2DGame {
     }
 
     private void updateBulletPos(final float dt) {
-        for (int i = 0; i < enemyBulletR.size(); ++i) {
-            final float r = enemyBulletR.get(i);
-            final float newX = enemyBulletX.get(i) + enemyBulletDx.get(i) * dt;
-            if (newX + r > 0 && newX - r < GAME_CANVAS_WIDTH) {
-                final float newY = enemyBulletY.get(i) + enemyBulletDy.get(i) * dt;
-                if (newY + r > 0 && newY - r < canvas.getHeight()) {
-                    enemyBulletX.set(i, newX);
-                    enemyBulletY.set(i, newY);
-                    continue;
-                }
-            }
-
-            // Reaching here means bullet went out of bounds, destroy
-            enemyBulletR.remove(i);
-            enemyBulletX.remove(i);
-            enemyBulletY.remove(i);
-            enemyBulletDx.remove(i);
-            enemyBulletDy.remove(i);
-            --i;
-        }
+        enemyBullets.updatePosition(dt);
     }
 
     private void procUserFire(final float dt) {
@@ -330,8 +294,8 @@ public class ProjectSeihouGame extends Java2DGame {
         if (fireFlag && this.isKeyDown(KeyEvent.VK_Z)) {
             fireFlag = false;
             pbTimer = 0f;
-            playerBulletX.add(playerX);
-            playerBulletY.add(playerY);
+            playerBulletX.add(player.getX());
+            playerBulletY.add(player.getY());
             playerBulletR.add(4f);
         }
     }
@@ -382,7 +346,8 @@ public class ProjectSeihouGame extends Java2DGame {
                 case 8:
                     enemies.add(new WeakGhost(patternFrame[++patternIdx],
                             patternFrame[++patternIdx],
-                            patternFrame[++patternIdx]));
+                            patternFrame[++patternIdx],
+                            enemyBullets, player));
                     break;
                 case 9:
                     patternIdx = (int) patternFrame[patternIdx + 1] - 1;
@@ -424,12 +389,12 @@ public class ProjectSeihouGame extends Java2DGame {
             final float bulletY = playerBulletY.get(i);
             final float bulletR = playerBulletR.get(i);
 
-            if (circlesCollide(bulletX, bulletY, bulletR, bossX, bossY, PLAYER_R)) {
+            if (Utils.circlesCollide(bulletX, bulletY, bulletR, bossX, bossY, PLAYER_R)) {
                 playerBulletR.remove(i);
                 playerBulletX.remove(i);
                 playerBulletY.remove(i);
                 if ((bossHp -= 1) <= 0) {
-                    playerScore += bossPts;
+                    player.deltaScore(bossPts);
                     advanceStage();
                     return true;
                 }
@@ -439,12 +404,12 @@ public class ProjectSeihouGame extends Java2DGame {
 
             for (int j = 0; j < enemies.size(); ++j) {
                 final Enemy gcmp = enemies.get(j);
-                if (circlesCollide(bulletX, bulletY, bulletR, gcmp.x, gcmp.y, gcmp.COLLISION_RADIUS)) {
+                if (Utils.circlesCollide(bulletX, bulletY, bulletR, gcmp.x, gcmp.y, gcmp.COLLISION_RADIUS)) {
                     playerBulletR.remove(i);
                     playerBulletX.remove(i);
                     playerBulletY.remove(i);
                     enemies.remove(j);
-                    playerScore += gcmp.SCORE;
+                    player.deltaScore(gcmp.SCORE);
                     --i;
                     continue playerBulletLoop;
                 }
@@ -457,23 +422,23 @@ public class ProjectSeihouGame extends Java2DGame {
         final float dv = (this.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
 
         if (this.isKeyDown(KeyEvent.VK_RIGHT)) {
-            if (playerX + dv < GAME_CANVAS_WIDTH) {
-                playerX += dv;
+            if (player.getX() + dv < GAME_CANVAS_WIDTH) {
+                player.translateX(dv);
             }
         }
         if (this.isKeyDown(KeyEvent.VK_LEFT)) {
-            if (playerX - dv > 0) {
-                playerX -= dv;
+            if (player.getX() - dv > 0) {
+                player.translateX(-dv);
             }
         }
         if (this.isKeyDown(KeyEvent.VK_DOWN)) {
-            if (playerY + dv < canvas.getHeight()) {
-                playerY += dv;
+            if (player.getY() + dv < canvas.getHeight()) {
+                player.translateY(dv);
             }
         }
         if (this.isKeyDown(KeyEvent.VK_UP)) {
-            if (playerY - dv > 0) {
-                playerY -= dv;
+            if (player.getY() - dv > 0) {
+                player.translateY(-dv);
             }
         }
     }
@@ -491,11 +456,6 @@ public class ProjectSeihouGame extends Java2DGame {
         timeLimit = data.timeout;
     }
 
-    private static boolean circlesCollide(float x1, float y1, float r1,
-            float x2, float y2, float r2) {
-        return (r1 + r2) > Math.hypot(x2 - x1, y2 - y1);
-    }
-
     private void bulletPatternRadial(float originX, float originY,
             float spacing, float tilt, float upperBound,
             float size, float speed) {
@@ -510,13 +470,10 @@ public class ProjectSeihouGame extends Java2DGame {
         }
 
         for (float counter = 0; counter < upperBound; counter += spacing) {
-            enemyBulletR.add(size);
-            enemyBulletX.add(originX);
-            enemyBulletY.add(originY);
-
             final float actAngle = counter + tilt;
-            enemyBulletDx.add((float) Math.cos(actAngle) * speed);
-            enemyBulletDy.add((float) Math.sin(actAngle) * speed);
+            enemyBullets.addBullet(originX, originY, size,
+                    (float) Math.cos(actAngle) * speed,
+                    (float) Math.sin(actAngle) * speed);
         }
     }
 
@@ -569,22 +526,22 @@ public class ProjectSeihouGame extends Java2DGame {
                 drawInfo(g, true);
                 g.setColor(LIGHT_GRAY_SHADER);
                 g.fillRect(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
-                g.setColor(Color.blue);
+                g.setColor(Color.cyan);
                 g.drawString("PAUSED", GAME_CANVAS_WIDTH / 2 - 24, 60);
                 break;
             case State.LOSE:
                 drawInfo(g, true);
-                g.setColor(Color.BLUE);
+                g.setColor(Color.cyan);
                 g.drawString("GAME OVER", GAME_CANVAS_WIDTH / 2 - 32, 60);
                 break;
             case State.WIN:
                 drawInfo(g, true);
-                g.setColor(Color.BLUE);
+                g.setColor(Color.cyan);
                 g.drawString("YOU WIN", GAME_CANVAS_WIDTH / 2 - 24, 60);
                 break;
             case State.ADVANCE:
                 drawInfo(g, false);
-                g.setColor(Color.BLUE);
+                g.setColor(Color.cyan);
                 g.drawString("NEXT LEVEL", GAME_CANVAS_WIDTH / 2 - 32, 60);
                 break;
             case State.HELP:
@@ -611,18 +568,12 @@ public class ProjectSeihouGame extends Java2DGame {
             if (protectionFlag) {
                 g.setColor(Color.green);
             }
-            g.fillOval((int) playerX - PLAYER_R, (int) playerY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
+            g.fillOval((int) player.getX() - PLAYER_R, (int) player.getY() - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
         }
 
         g.setColor(Color.yellow);
         g.fillOval((int) bossX - PLAYER_R, (int) bossY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
-        try {
-            for (int i = 0; i < enemyBulletX.size(); ++i) {
-                final float r = enemyBulletR.get(i);
-                g.drawOval((int) (enemyBulletX.get(i) - r), (int) (enemyBulletY.get(i) - r), (int) (r * 2), (int) (r * 2));
-            }
-        } catch (IndexOutOfBoundsException ex) {
-        }
+        enemyBullets.render(g);
 
         try {
             for (int i = 0; i < enemies.size(); ++i) {
@@ -652,7 +603,7 @@ public class ProjectSeihouGame extends Java2DGame {
 
         g.drawString("HP:", GAME_CANVAS_WIDTH + 14, 80);
         if (withStats) {
-            g.drawString(Integer.toString(playerHp), GAME_CANVAS_WIDTH + 14 + 30, 80);
+            g.drawString(Integer.toString(player.getHp()), GAME_CANVAS_WIDTH + 14 + 30, 80);
         }
 
         if (withStats && protectionFlag) {
@@ -660,7 +611,7 @@ public class ProjectSeihouGame extends Java2DGame {
         }
 
         g.drawString("Score:", GAME_CANVAS_WIDTH + 14, 114);
-        g.drawString(Long.toString(playerScore * 20L), GAME_CANVAS_WIDTH + 14, 126);
+        g.drawString(Long.toString(player.getScore() * 20L), GAME_CANVAS_WIDTH + 14, 126);
     }
 
     @Override
