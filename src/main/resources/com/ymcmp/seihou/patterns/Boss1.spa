@@ -14,6 +14,11 @@
     enemy.weak
     x 370 y 0
     enemy.weak
+
+    x 190 y 0
+    enemy.spiral
+    enemy.spiral
+    enemy.spiral
 } weaklings
 {
     delay 2 spacing 30 tilt 0 size 6 speed 120

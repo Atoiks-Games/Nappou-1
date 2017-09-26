@@ -108,7 +108,28 @@ public class BulletManager {
                 g.drawOval((int) (x.get(i) - radius), (int) (y.get(i) - radius),
                         (int) (radius * 2), (int) (radius * 2));
             }
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException | NullPointerException ex) {
+        }
+    }
+
+    public void firePatternRadial(float originX, float originY,
+            float spacing, float tilt, float upperBound,
+            float size, float speed) {
+        // o -> apply [radial]
+        //
+        // \ | /
+        // - o -   (angle between is spacing (rad), angle offset is tilt (rad))
+        // / | \
+
+        if (size == 0) {
+            return;
+        }
+
+        for (float counter = 0; counter < upperBound; counter += spacing) {
+            final float actAngle = counter + tilt;
+            addBullet(originX, originY, size,
+                    (float) Math.cos(actAngle) * speed,
+                    (float) Math.sin(actAngle) * speed);
         }
     }
 }

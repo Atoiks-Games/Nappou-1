@@ -1,7 +1,6 @@
 package com.ymcmp.seihou;
 
-import com.ymcmp.seihou.enemies.Enemy;
-import com.ymcmp.seihou.enemies.WeakGhost;
+import com.ymcmp.seihou.enemies.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -307,21 +306,21 @@ public class ProjectSeihouGame extends Java2DGame {
                 case 0:
                     break;
                 case 1:
-                    bulletPatternRadial(bossX, bossY,
+                    enemyBullets.firePatternRadial(bossX, bossY,
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.PI * 2f,
                             patternFrame[++patternIdx], patternFrame[++patternIdx]);
                     break;
                 case 7:
-                    bulletPatternRadial(bossX, bossY,
+                    enemyBullets.firePatternRadial(bossX, bossY,
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             patternFrame[++patternIdx], patternFrame[++patternIdx]);
                     break;
                 case 2:
-                    bulletPatternRadial(patternFrame[++patternIdx], patternFrame[++patternIdx],
+                    enemyBullets.firePatternRadial(patternFrame[++patternIdx], patternFrame[++patternIdx],
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
@@ -343,14 +342,19 @@ public class ProjectSeihouGame extends Java2DGame {
                     bossDx += patternFrame[++patternIdx];
                     bossDy += patternFrame[++patternIdx];
                     break;
+                case 9:
+                    patternIdx = (int) patternFrame[patternIdx + 1] - 1;
+                    break;
                 case 8:
                     enemies.add(new WeakGhost(patternFrame[++patternIdx],
                             patternFrame[++patternIdx],
                             patternFrame[++patternIdx],
                             enemyBullets, player));
                     break;
-                case 9:
-                    patternIdx = (int) patternFrame[patternIdx + 1] - 1;
+                case 10:
+                    enemies.add(new SpiralGhost(patternFrame[++patternIdx],
+                            patternFrame[++patternIdx],
+                            enemyBullets, player));
                     break;
             }
             bfTimer = 0f;
@@ -454,27 +458,6 @@ public class ProjectSeihouGame extends Java2DGame {
         bossHp = data.hp;
         bossPts = data.score;
         timeLimit = data.timeout;
-    }
-
-    private void bulletPatternRadial(float originX, float originY,
-            float spacing, float tilt, float upperBound,
-            float size, float speed) {
-        // o -> apply [radial]
-        //
-        // \ | /
-        // - o -   (angle between is spacing (rad), angle offset is tilt (rad))
-        // / | \
-
-        if (size == 0) {
-            return;
-        }
-
-        for (float counter = 0; counter < upperBound; counter += spacing) {
-            final float actAngle = counter + tilt;
-            enemyBullets.addBullet(originX, originY, size,
-                    (float) Math.cos(actAngle) * speed,
-                    (float) Math.sin(actAngle) * speed);
-        }
     }
 
     @Override

@@ -159,6 +159,12 @@ public final class BulletPatternAssembler {
                     cached.add(props.getOrDefault("y", 0f));
                     cached.add(props.getOrDefault("limit", 0f));
                     break;
+                case "enemy.spiral":
+                    cached.add(props.getOrDefault("delay", 0f));
+                    cached.add(10f); // enemy.spiral is type 10
+                    cached.add(props.getOrDefault("x", 0f));
+                    cached.add(props.getOrDefault("y", 0f));
+                    break;
                 default:
                     System.err.println("FAILED TO ASSEMBLE " + frags[i]);
                     break outer;

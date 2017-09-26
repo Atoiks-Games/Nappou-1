@@ -9,24 +9,22 @@ import java.awt.Graphics;
 
 import java.util.Random;
 
-public class WeakGhost extends Enemy {
+public class SpiralGhost extends Enemy {
 
     public static final float SPEED = 50;
-    public static final float FIRE_RATE = 2;
+    public static final float FIRE_RATE = 4;
     private static final Random RND = new Random();
 
     private final int DIRECTION;
-    private final float Y_LIMIT;
     private final BulletManager BULLET_POOL;
     private final PlayerManager PLAYER;
 
     private float fireTimer;
 
-    public WeakGhost(float x, float y, float limY, BulletManager manager, PlayerManager player) {
+    public SpiralGhost(float x, float y, BulletManager manager, PlayerManager player) {
         super(3f, 1);
         this.x = x;
         this.y = y;
-        this.Y_LIMIT = limY;
         this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
         this.BULLET_POOL = manager;
         this.PLAYER = player;
@@ -51,14 +49,12 @@ public class WeakGhost extends Enemy {
 
         if ((fireTimer += dt) >= FIRE_RATE) {
             fireTimer = 0;
-            BULLET_POOL.addBullet(x, y, COLLISION_RADIUS, PLAYER.getX() - x, PLAYER.getY() - y);
+            BULLET_POOL.firePatternRadial(x, y, (float) Math.toRadians(30), 0,
+                    (float) Math.PI * 2f, COLLISION_RADIUS / 2, 20);
         }
 
         final float dv = dt * SPEED;
-        if (DIRECTION != 0 && y > Y_LIMIT) {
-            x += DIRECTION * dv;
-            return;
-        }
+        x += DIRECTION * dv;
         y += dv;
     }
 
