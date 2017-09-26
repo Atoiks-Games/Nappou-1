@@ -9,7 +9,7 @@ import java.awt.Graphics;
 
 import java.util.Random;
 
-public class SpiralGhost extends Enemy {
+public class RadialGhost extends Enemy {
 
     public static final float SPEED = 50;
     public static final float FIRE_RATE = 4;
@@ -21,7 +21,7 @@ public class SpiralGhost extends Enemy {
 
     private float fireTimer;
 
-    public SpiralGhost(float x, float y, BulletManager manager, PlayerManager player) {
+    public RadialGhost(float x, float y, BulletManager manager, PlayerManager player) {
         super(3f, 1);
         this.x = x;
         this.y = y;

@@ -352,7 +352,7 @@ public class ProjectSeihouGame extends Java2DGame {
                             enemyBullets, player));
                     break;
                 case 10:
-                    enemies.add(new SpiralGhost(patternFrame[++patternIdx],
+                    enemies.add(new RadialGhost(patternFrame[++patternIdx],
                             patternFrame[++patternIdx],
                             enemyBullets, player));
                     break;
