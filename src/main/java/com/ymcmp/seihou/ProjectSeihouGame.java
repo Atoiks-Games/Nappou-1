@@ -511,21 +511,28 @@ public class ProjectSeihouGame extends Java2DGame {
                 g.fillRect(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
                 g.setColor(Color.cyan);
                 g.drawString("PAUSED", GAME_CANVAS_WIDTH / 2 - 24, 60);
+                g.drawString("(ENTER OR Q)", GAME_CANVAS_WIDTH / 2 - 40, 240);
                 break;
             case State.LOSE:
                 drawInfo(g, true);
                 g.setColor(Color.cyan);
                 g.drawString("GAME OVER", GAME_CANVAS_WIDTH / 2 - 32, 60);
+                g.drawString("BACK", GAME_CANVAS_WIDTH / 2 - 12, 240);
+                g.drawLine(GAME_CANVAS_WIDTH / 2 - 10, 240, GAME_CANVAS_WIDTH / 2 + 10, 240);
                 break;
             case State.WIN:
                 drawInfo(g, true);
                 g.setColor(Color.cyan);
                 g.drawString("YOU WIN", GAME_CANVAS_WIDTH / 2 - 24, 60);
+                g.drawString("CONTINUE", GAME_CANVAS_WIDTH / 2 - 28, 240);
+                g.drawLine(GAME_CANVAS_WIDTH / 2 - 10, 240, GAME_CANVAS_WIDTH / 2 + 10, 240);
                 break;
             case State.ADVANCE:
                 drawInfo(g, false);
                 g.setColor(Color.cyan);
                 g.drawString("NEXT LEVEL", GAME_CANVAS_WIDTH / 2 - 32, 60);
+                g.drawString("CONTINUE", GAME_CANVAS_WIDTH / 2 - 28, 240);
+                g.drawLine(GAME_CANVAS_WIDTH / 2 - 10, 240, GAME_CANVAS_WIDTH / 2 + 10, 240);
                 break;
             case State.HELP:
                 g.setColor(Color.cyan);
