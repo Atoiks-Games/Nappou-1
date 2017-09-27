@@ -135,10 +135,13 @@ public class ProjectSeihouGame extends Java2DGame {
             case State.LOADING:
                 try {
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Tutorial.spa")
+                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/0.spa")
                     ), 30, 0));
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/Boss1.spa")
+                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/1.spa")
+                    ), 45, 200, 60));
+                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/3.spa")
                     ), 125, 200, 100));
                     imgName = ImageIO.read(
                             this.getClass().getResourceAsStream("/com/ymcmp/seihou/name.bmp")

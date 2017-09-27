@@ -1,0 +1,65 @@
+{
+    delay 0 x 30 y 0 limit 170
+    enemy.weak
+    delay 0.1 x 10 y 0 limit 190
+    enemy.weak
+} weaklings
+{
+    delay 0 x 365 y 0
+    enemy.radial
+} glider
+{
+    group weaklings
+    group weaklings
+    group weaklings
+    group glider
+} mob_cycle
+
+x 0 y -20
+boss.setspd
+
+group mob_cycle
+group mob_cycle
+group mob_cycle
+
+delay 5 x 0 y 20
+boss.setspd
+
+x 0 y 0
+boss.setspd
+
+label loop
+
+delay 0.1 x 30 y 35
+boss.setspd
+
+delay 3
+spacing 15 tilt 75 size 4 speed 140 limit 75
+boss.limrad
+
+delay 3 x -60 y -20
+boss.setspd
+
+delay 3
+spacing 15 tilt 0 size 4 speed 140
+boss.radial
+delay 0 size 6 speed 110
+x 190 y 130 radial
+x 170 y 150 radial
+x 210 y 150 radial
+
+delay 3 x 30 y -15
+boss.setspd
+
+delay 3
+spacing 15 tilt 45 size 4 speed 140 limit 75
+boss.limrad
+
+delay 2.9 size 8 speed 90
+x 190 y 100 radial
+delay 0
+x 150 y 140 radial
+x 230 y 140 radial
+
+delay 0
+jmp loop
