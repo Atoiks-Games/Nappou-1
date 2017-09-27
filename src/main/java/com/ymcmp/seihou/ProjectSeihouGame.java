@@ -354,7 +354,12 @@ public class ProjectSeihouGame extends Java2DGame {
                 case 10:
                     enemies.add(new RadialGhost(patternFrame[++patternIdx],
                             patternFrame[++patternIdx],
-                            enemyBullets, player));
+                            enemyBullets));
+                    break;
+                case 11:
+                    enemies.add(new SpiralGhost(patternFrame[++patternIdx],
+                            patternFrame[++patternIdx],
+                            enemyBullets));
                     break;
             }
             bfTimer = 0f;
@@ -412,8 +417,10 @@ public class ProjectSeihouGame extends Java2DGame {
                     playerBulletR.remove(i);
                     playerBulletX.remove(i);
                     playerBulletY.remove(i);
-                    enemies.remove(j);
-                    player.deltaScore(gcmp.SCORE);
+                    if (gcmp.reduceHp(1) <= 0) {
+                        player.deltaScore(gcmp.SCORE);
+                        enemies.remove(j);
+                    }
                     --i;
                     continue playerBulletLoop;
                 }

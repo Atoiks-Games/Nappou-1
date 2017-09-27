@@ -23,7 +23,7 @@ public class WeakGhost extends Enemy {
     private float fireTimer;
 
     public WeakGhost(float x, float y, float limY, BulletManager manager, PlayerManager player) {
-        super(3f, 1);
+        super(3f, 1, 1);
         this.x = x;
         this.y = y;
         this.Y_LIMIT = limY;

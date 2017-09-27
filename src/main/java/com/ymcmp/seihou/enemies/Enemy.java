@@ -12,9 +12,15 @@ public abstract class Enemy extends GameComponent {
     public final int SCORE;
     public float x;
     public float y;
+    protected int hp;
 
-    public Enemy(float collisionRadius, int score) {
+    public Enemy(float collisionRadius, int score, int hp) {
         this.COLLISION_RADIUS = collisionRadius;
         this.SCORE = score;
+        this.hp = hp;
+    }
+
+    public int reduceHp(int delta) {
+        return hp -= delta;
     }
 }

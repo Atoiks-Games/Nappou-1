@@ -6,26 +6,25 @@ import com.ymcmp.seihou.ProjectSeihouGame;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import java.util.Random;
+public class SpiralGhost extends Enemy {
 
-public class RadialGhost extends Enemy {
-
-    public static final float SPEED = 60;
-    public static final float FIRE_RATE = 4;
-    private static final Random RND = new Random();
+    public static final float SPEED = 25;
+    public static final float FIRE_RATE = 3;
 
     private final int DIRECTION;
     private final BulletManager BULLET_POOL;
 
     private float fireTimer;
+    private float fireAngle;
 
-    public RadialGhost(float x, float y, BulletManager manager) {
-        super(3f, 2, 2);
+    public SpiralGhost(float x, float y, BulletManager manager) {
+        super(5f, 6, 5);
         this.x = x;
         this.y = y;
         this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
         this.BULLET_POOL = manager;
-        this.fireTimer = RND.nextFloat() * FIRE_RATE;
+        this.fireTimer = 0f;
+        this.fireAngle = 0f;
     }
 
     @Override
@@ -44,15 +43,21 @@ public class RadialGhost extends Enemy {
             return;
         }
 
-        if ((fireTimer += dt) >= FIRE_RATE) {
-            fireTimer = 0;
-            BULLET_POOL.firePatternRadial(x, y, (float) Math.toRadians(30), 0,
-                    (float) Math.PI * 2f, COLLISION_RADIUS / 2, 20);
+        final float magnitude = Math.abs(fireAngle);
+        if (magnitude > 0 && magnitude < Math.PI * 2) {
+            fireAngle += DIRECTION * Math.toRadians(15);
+            BULLET_POOL.addBullet(x, y, COLLISION_RADIUS / 2,
+                    (float) Math.sin(fireAngle) * 15,
+                    (float) Math.cos(fireAngle) * 15);
+            return;
         }
 
-        final float dv = dt * SPEED;
-        x += DIRECTION * dv;
-        y += dv;
+        if ((fireTimer += dt) >= FIRE_RATE) {
+            fireTimer = 0;
+            fireAngle = 0.001f;
+        }
+
+        y += dt * SPEED;
     }
 
     @Override
