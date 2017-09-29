@@ -1,164 +1,101 @@
 {
     delay 0
-    x 10 y 0 limit 170
-    enemy.weak
-    x 370 y 0 limit 160
-    enemy.weak
-    delay 0.1
-    x 10 y 0
-    enemy.weak
-    x 370 y 0 limit 170
-    enemy.weak
-    delay 0.1
-    x 10 y 0 limit 160
-    enemy.weak
-    x 370 y 0
-    enemy.weak
-
-    x 190 y 0
-    enemy.radial
-    enemy.radial
-    enemy.radial
-
-    delay 0 x 40 y 0
-    enemy.spiral
-    x 340 y 0
-    enemy.spiral
-} weaklings
-{
-    delay 2 spacing 30 tilt 0 size 6 speed 120
-    boss.radial
-    delay 0.2 tilt 7.5
-    boss.radial
-    tilt 15
-    boss.radial
-    tilt 22.5
-    boss.radial
-    tilt 30
-    boss.radial
-} pos_radial
-{
-    delay 2 spacing 30 tilt 30 size 6 speed 120
-    boss.radial
-    delay 0.2 tilt 22.5
-    boss.radial
-    tilt 15
-    boss.radial
-    tilt 7.5
-    boss.radial
+    spacing 15 tilt 0 x 190 y 130
+    size 4 speed 140 radial
+    size 8 speed 80 radial
+    tilt 20
+    size 4 speed 140 radial
     tilt 0
-    boss.radial
-} neg_radial
+    size 6 speed 115 radial
+} center_rad
 {
-    delay 0.1 spacing 6 tilt 15 size 4 speed 110
-    boss.radial
-} simple_radial
+    delay 0 x 30 y 0 limit 170
+    enemy.weak
+    delay 0.1 x 10 y 0 limit 190
+    enemy.weak
+} left_weak
 {
-    delay 0.5 spacing 15 tilt 75 size 4 speed 140
-    limit 45
-    boss.limrad
-    delay 0.05
-    boss.limrad
-    boss.limrad
-    boss.limrad
+    delay 0 x 350 y 0 limit 170
+    enemy.weak
+    delay 0.1 x 370 y 0 limit 190
+    enemy.weak
+} right_weak
 
-    spacing 6 tilt 15 size 4 speed 110
-    boss.radial
+{
+    group left_weak
+    delay 0.5 nop
+    group right_weak
+    delay 0.5 nop
+    group left_weak
+    delay 0.5 nop
+    group right_weak
+} mob_cycle
 
-    delay 0.05 spacing 15 tilt 75 size 4 speed 140
-    boss.limrad
-    boss.limrad
-    boss.limrad
-
-    spacing 6 tilt 30 size 4 speed 110
-    boss.radial
-
-    delay 0.05 spacing 15 tilt 75 size 4 speed 140
-    boss.limrad
-    boss.limrad
-    boss.limrad
-
-    spacing 6 tilt 35 size 4 speed 110
-    boss.radial
-
-    delay 0.05 spacing 15 tilt 75 size 4 speed 140
-    boss.limrad
-    boss.limrad
-    boss.limrad
-} speedy
-
-x 0 y -20
+delay 0 x 0 y -20
 boss.setspd
 
-group weaklings
-group weaklings
+group mob_cycle
 
-delay 5 y 20
+delay 0.5 x 150 y 0 enemy.spiral
+delay 0 x 230 y 0 enemy.spiral
+
+group mob_cycle
+
+delay 5 x 0 y 20
 boss.setspd
-
-label loop
-
-group pos_radial
-group neg_radial
-group pos_radial
-
-delay 0.1 x 0 y 20
-boss.setspd
-
-delay 0.5
-group speedy
 
 x 0 y 0
 boss.setspd
 
-group simple_radial
+label loop
 
-group speedy
-
-delay 0.1 x 50 y -20
+delay 0.1 x 20 y 0
 boss.setspd
 
-delay 2 x 0 y 0
+delay 6 x 10 y 35
 boss.setspd
 
-group pos_radial
-group neg_radial
-group pos_radial
+delay 0 x 30 y 20
+spacing 15 size 8 speed 80
+tilt 0 radial
+delay 0.2
+tilt 7.5 radial
+delay 0.2
+tilt 0 radial
 
-delay 0.1 x -50 y 20
+delay 5.6 x -60 y -20
 boss.setspd
 
-delay 2 x 0 y 0
+delay 1.5
+spacing 5 tilt 65 size 5 speed 110 limit 140
+boss.limrad
+
+delay 1.5 x -60 y 20
 boss.setspd
 
-group pos_radial
-group neg_radial
-group pos_radial
+delay 1.5
+spacing 5 tilt -15 size 5 speed 110 limit 140
+boss.limrad
 
-delay 0.1 x -50 y -20
+delay 1.5 x 10 y -20
 boss.setspd
 
-delay 2 x 0 y 0
+delay 0 x 350 y 20
+spacing 15 size 8 speed 80
+tilt 0 radial
+delay 0.2
+tilt 7.5 radial
+delay 0.2
+tilt 0 radial
+
+delay 5.6 x 20 y 0
 boss.setspd
 
-group pos_radial
-group neg_radial
-group pos_radial
+delay 3 nop
+group center_rad
 
-delay 0.1 x 50 y 20
-boss.setspd
+delay 2.9 nop
+group center_rad
 
-delay 2 x 0 y 0
-boss.setspd
-
-group pos_radial
-group neg_radial
-group pos_radial
-
-delay 0.1 x 0 y -20
-boss.setspd
-
-delay 2 x 0 y 0
-boss.setspd
-
+delay 0
 jmp loop
