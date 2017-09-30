@@ -16,6 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 /**
  *
  * @author YTENG
@@ -71,6 +77,8 @@ public class ProjectSeihouGame extends Java2DGame {
     // bosses do not count as enemies (mini-bosses do though)
     private final List<Enemy> enemies = new ArrayList<>(32);
 
+    private final Clip[] musics = new Clip[1];
+
     public static final int GAME_CANVAS_WIDTH = 380;
     public static final int INFO_CANVAS_WIDTH = 120;
     public static final int CANVAS_WIDTH = GAME_CANVAS_WIDTH + INFO_CANVAS_WIDTH;
@@ -85,7 +93,17 @@ public class ProjectSeihouGame extends Java2DGame {
             frame.setIconImage(ImageIO.read(
                     this.getClass().getResourceAsStream("/com/ymcmp/seihou/icon.png")
             ));
-        } catch (IOException ex) {
+
+            try (AudioInputStream in = AudioSystem.getAudioInputStream(
+                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/music/title_screen.wav")
+            )) {
+                Clip clip = AudioSystem.getClip();
+                clip.open(in);
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                musics[0] = clip;
+                clip.start();
+            }
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
             abort();
             return;
         }
@@ -149,6 +167,7 @@ public class ProjectSeihouGame extends Java2DGame {
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/4.spa")
                     ), 125, 200, 100));
+
                     imgName = ImageIO.read(
                             this.getClass().getResourceAsStream("/com/ymcmp/seihou/name.bmp")
                     );
@@ -207,6 +226,7 @@ public class ProjectSeihouGame extends Java2DGame {
                 break;
             }
             case State.INIT:
+                musics[0].start();
                 player.resetScore();
                 patternFrameIdx = 0;
                 if (this.isKeyPressed(KeyEvent.VK_UP)) {
@@ -219,12 +239,14 @@ public class ProjectSeihouGame extends Java2DGame {
                     switch (initOptSel) {
                         case 0:
                             doAdvance();
+                            musics[0].stop();
                             state.set(State.PLAYING);
                             return;
                         case 1:
                             state.set(State.HELP);
                             return;
                         case 2:
+                            musics[0].stop();
                             abort();
                             return;
                     }
@@ -243,9 +265,11 @@ public class ProjectSeihouGame extends Java2DGame {
                     return;
                 }
                 break;
+            case State.HELP:
+                musics[0].start();
+                // FALLTHROUGH
             case State.LOSE:
             case State.WIN:
-            case State.HELP:
                 if (this.isKeyPressed(KeyEvent.VK_ENTER)) {
                     state.set(State.INIT);
                 }
@@ -623,5 +647,9 @@ public class ProjectSeihouGame extends Java2DGame {
     @Override
     public void destroy() {
         super.destroy();
+
+        for (int i = 0; i < musics.length; ++i) {
+            musics[i].close();
+        }
     }
 }
