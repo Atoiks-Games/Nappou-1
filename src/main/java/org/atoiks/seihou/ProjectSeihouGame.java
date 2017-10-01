@@ -1,7 +1,8 @@
 package org.atoiks.seihou;
 
-import org.atoiks.core.Game;
 import org.atoiks.seihou.enemies.*;
+
+import com.ymcmp.jine.Game;
 
 import java.awt.Color;
 import java.awt.Graphics;

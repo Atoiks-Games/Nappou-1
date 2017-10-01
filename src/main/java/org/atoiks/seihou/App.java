@@ -1,9 +1,9 @@
 package org.atoiks.seihou;
 
-import org.atoiks.core.Game;
-import org.atoiks.core.Java2DEnv;
-import org.atoiks.core.Environment;
-import org.atoiks.core.ThreadedRunner;
+import com.ymcmp.jine.Game;
+import com.ymcmp.jine.Java2DEnv;
+import com.ymcmp.jine.Environment;
+import com.ymcmp.jine.ThreadedRunner;
 
 public class App {
 
