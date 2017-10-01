@@ -1,7 +1,7 @@
 package org.atoiks.core;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -19,14 +19,14 @@ public final class ThreadedRunner implements GameRunner {
     }
 
     @Override
-    public void run(Game g) {
+    public void start(Environment g) {
         final AtomicBoolean cleanFlag = new AtomicBoolean(true);
         try {
-            g.init();
+            g.initEnv();
             pool.submit(() -> {
                 try {
                     while (g.isRunning() && cleanFlag.get()) {
-                        g.render();
+                        g.invokeRender();
                     }
                 } catch (RuntimeException ex) {
                     cleanFlag.set(false);
@@ -36,7 +36,7 @@ public final class ThreadedRunner implements GameRunner {
             long lastTime = System.currentTimeMillis();
             while (g.isRunning() && cleanFlag.get()) {
                 final long current = System.currentTimeMillis();
-                g.update(current - lastTime);
+                g.invokeUpdate(current - lastTime);
                 lastTime = current;
                 try {
                     // Prevent YouTube videos from glitching
@@ -46,7 +46,7 @@ public final class ThreadedRunner implements GameRunner {
             }
         } finally {
             this.pool.shutdown();
-            g.destroy();
+            g.destroyEnv();
         }
     }
 

@@ -1,6 +1,6 @@
 package org.atoiks.seihou;
 
-import org.atoiks.core.Java2DGame;
+import org.atoiks.core.Game;
 import org.atoiks.seihou.enemies.*;
 
 import java.awt.Color;
@@ -27,7 +27,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  * @author YTENG
  */
-public class ProjectSeihouGame extends Java2DGame {
+public class ProjectSeihouGame extends Game {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -89,11 +89,8 @@ public class ProjectSeihouGame extends Java2DGame {
 
     @Override
     public void init() {
-        super.init();
         try {
-            frame.setIconImage(ImageIO.read(
-                    this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png")
-            ));
+            frame.setIcon(ImageIO.read(this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png")));
 
             try (AudioInputStream in = AudioSystem.getAudioInputStream(
                     this.getClass().getResourceAsStream("/org/atoiks/seihou/music/title_screen.wav")
@@ -105,14 +102,14 @@ public class ProjectSeihouGame extends Java2DGame {
                 clip.start();
             }
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
-            abort();
+            frame.abort();
             return;
         }
 
         frame.setTitle("Project Seihou");
         frame.setSize(CANVAS_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        frame.moveToCenter();
         frame.setVisible(true);
 
         enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
@@ -176,13 +173,13 @@ public class ProjectSeihouGame extends Java2DGame {
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.bmp")
                     );
                 } catch (IOException ex) {
-                    abort();
+                    frame.abort();
                     return;
                 }
                 state.set(State.INIT);
                 break;
             case State.PLAYING: {
-                if (this.isKeyDown(KeyEvent.VK_ESCAPE)) {
+                if (keyboard.isKeyDown(KeyEvent.VK_ESCAPE)) {
                     state.set(State.PAUSE);
                     return;
                 }
@@ -230,13 +227,13 @@ public class ProjectSeihouGame extends Java2DGame {
                 musics[0].start();
                 player.resetScore();
                 patternFrameIdx = 0;
-                if (this.isKeyPressed(KeyEvent.VK_UP)) {
+                if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
                 }
-                if (this.isKeyPressed(KeyEvent.VK_DOWN)) {
+                if (keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
                     ++initOptSel;
                 }
-                if (this.isKeyPressed(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
                     switch (initOptSel) {
                         case 0:
                             doAdvance();
@@ -248,7 +245,7 @@ public class ProjectSeihouGame extends Java2DGame {
                             return;
                         case 2:
                             musics[0].stop();
-                            abort();
+                            frame.abort();
                             return;
                     }
                 }
@@ -257,25 +254,25 @@ public class ProjectSeihouGame extends Java2DGame {
                 doAdvance();
             }
             case State.PAUSE:
-                if (this.isKeyDown(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyDown(KeyEvent.VK_ENTER)) {
                     state.set(State.PLAYING);
                     return;
                 }
-                if (this.isKeyDown(KeyEvent.VK_Q)) {
+                if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
                     state.set(State.INIT);
                     return;
                 }
                 break;
             case State.HELP:
                 musics[0].start();
-                // FALLTHROUGH
+            // FALLTHROUGH
             case State.LOSE:
             case State.WIN:
-                if (this.isKeyPressed(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
                     state.set(State.INIT);
                 }
-                if (this.isKeyDown(KeyEvent.VK_Q)) {
-                    abort();
+                if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
+                    frame.abort();
                 }
                 break;
             default:
@@ -324,7 +321,7 @@ public class ProjectSeihouGame extends Java2DGame {
         if ((pbTimer += dt) >= PLAYER_BULLET_RATE) {
             fireFlag = true;
         }
-        if (fireFlag && this.isKeyDown(KeyEvent.VK_Z)) {
+        if (fireFlag && keyboard.isKeyDown(KeyEvent.VK_Z)) {
             fireFlag = false;
             pbTimer = 0f;
             playerBulletX.add(player.getX());
@@ -464,24 +461,24 @@ public class ProjectSeihouGame extends Java2DGame {
     }
 
     private void procPlayerMovement(final float dt) {
-        final float dv = (this.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
+        final float dv = (keyboard.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
 
-        if (this.isKeyDown(KeyEvent.VK_RIGHT)) {
+        if (keyboard.isKeyDown(KeyEvent.VK_RIGHT)) {
             if (player.getX() + dv < GAME_CANVAS_WIDTH) {
                 player.translateX(dv);
             }
         }
-        if (this.isKeyDown(KeyEvent.VK_LEFT)) {
+        if (keyboard.isKeyDown(KeyEvent.VK_LEFT)) {
             if (player.getX() - dv > 0) {
                 player.translateX(-dv);
             }
         }
-        if (this.isKeyDown(KeyEvent.VK_DOWN)) {
+        if (keyboard.isKeyDown(KeyEvent.VK_DOWN)) {
             if (player.getY() + dv < canvas.getHeight()) {
                 player.translateY(dv);
             }
         }
-        if (this.isKeyDown(KeyEvent.VK_UP)) {
+        if (keyboard.isKeyDown(KeyEvent.VK_UP)) {
             if (player.getY() - dv > 0) {
                 player.translateY(-dv);
             }
@@ -647,8 +644,6 @@ public class ProjectSeihouGame extends Java2DGame {
 
     @Override
     public void destroy() {
-        super.destroy();
-
         for (int i = 0; i < musics.length; ++i) {
             musics[i].close();
         }

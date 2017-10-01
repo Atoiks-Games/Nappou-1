@@ -6,5 +6,5 @@ package org.atoiks.core;
  */
 public interface GameRunner {
 
-    public abstract void run(Game g);
+    public abstract void start(Environment g);
 }
