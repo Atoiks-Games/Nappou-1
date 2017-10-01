@@ -1,6 +1,6 @@
-package com.ymcmp.seihou.enemies;
+package org.atoiks.seihou.enemies;
 
-import com.ymcmp.seihou.GameComponent;
+import org.atoiks.seihou.GameComponent;
 
 /**
  *

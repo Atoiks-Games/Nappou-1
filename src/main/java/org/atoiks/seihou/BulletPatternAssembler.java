@@ -1,4 +1,4 @@
-package com.ymcmp.seihou;
+package org.atoiks.seihou;
 
 import java.io.BufferedReader;
 import java.io.IOException;

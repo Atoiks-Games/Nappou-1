@@ -1,6 +1,6 @@
-package com.ymcmp.seihou;
+package org.atoiks.seihou;
 
-import com.ymcmp.seihou.enemies.*;
+import org.atoiks.seihou.enemies.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -91,11 +91,11 @@ public class ProjectSeihouGame extends Java2DGame {
         super.init();
         try {
             frame.setIconImage(ImageIO.read(
-                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/icon.png")
+                    this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png")
             ));
 
             try (AudioInputStream in = AudioSystem.getAudioInputStream(
-                    this.getClass().getResourceAsStream("/com/ymcmp/seihou/music/title_screen.wav")
+                    this.getClass().getResourceAsStream("/org/atoiks/seihou/music/title_screen.wav")
             )) {
                 Clip clip = AudioSystem.getClip();
                 clip.open(in);
@@ -153,26 +153,26 @@ public class ProjectSeihouGame extends Java2DGame {
             case State.LOADING:
                 try {
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/0.spa")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/0.spa")
                     ), 30, 0));
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/1.spa")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/1.spa")
                     ), 45, 200, 60));
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/2.spa")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/2.spa")
                     ), 45, 180, 60));
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/3.spa")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/3.spa")
                     ), 45, 200, 80));
                     BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/patterns/4.spa")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/4.spa")
                     ), 125, 200, 100));
 
                     imgName = ImageIO.read(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/name.bmp")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/name.bmp")
                     );
                     imgInstructions = ImageIO.read(
-                            this.getClass().getResourceAsStream("/com/ymcmp/seihou/instructions.bmp")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.bmp")
                     );
                 } catch (IOException ex) {
                     abort();
@@ -510,7 +510,7 @@ public class ProjectSeihouGame extends Java2DGame {
                 g.drawString("Now loading...", 0, 12);
                 break;
             case State.INIT:
-                g.drawImage(imgName, 22, 0, null);
+                g.drawImage(imgName, 18, 0, null);
                 g.setColor(Color.cyan);
                 g.drawString("START", CANVAS_WIDTH / 2 - 16, 82);
                 g.drawString("HELP", CANVAS_WIDTH / 2 - 12, 104);

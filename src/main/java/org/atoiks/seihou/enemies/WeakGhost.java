@@ -1,8 +1,8 @@
-package com.ymcmp.seihou.enemies;
+package org.atoiks.seihou.enemies;
 
-import com.ymcmp.seihou.BulletManager;
-import com.ymcmp.seihou.PlayerManager;
-import com.ymcmp.seihou.ProjectSeihouGame;
+import org.atoiks.seihou.BulletManager;
+import org.atoiks.seihou.PlayerManager;
+import org.atoiks.seihou.ProjectSeihouGame;
 
 import java.awt.Color;
 import java.awt.Graphics;

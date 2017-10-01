@@ -4,7 +4,7 @@ apply plugin: 'application'
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-mainClassName = 'com.ymcmp.seihou.App'
+mainClassName = 'org.atoiks.seihou.App'
 
 repositories {
     mavenCentral()

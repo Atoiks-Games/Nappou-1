@@ -1,4 +1,4 @@
-package com.ymcmp.seihou;
+package org.atoiks.seihou;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

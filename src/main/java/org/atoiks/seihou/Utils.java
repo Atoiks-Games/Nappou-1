@@ -1,4 +1,4 @@
-package com.ymcmp.seihou;
+package org.atoiks.seihou;
 
 /**
  *
