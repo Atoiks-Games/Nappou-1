@@ -1,5 +1,7 @@
 package org.atoiks.seihou;
 
+import org.atoiks.core.ThreadedRunner;
+
 public class App {
 
     /**

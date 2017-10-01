@@ -1,4 +1,4 @@
-package org.atoiks.seihou;
+package org.atoiks.core;
 
 /**
  *

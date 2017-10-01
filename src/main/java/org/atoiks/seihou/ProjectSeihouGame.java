@@ -1,5 +1,6 @@
 package org.atoiks.seihou;
 
+import org.atoiks.core.Java2DGame;
 import org.atoiks.seihou.enemies.*;
 
 import java.awt.Color;

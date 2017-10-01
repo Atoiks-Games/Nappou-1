@@ -1,4 +1,4 @@
-package org.atoiks.seihou;
+package org.atoiks.core;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
