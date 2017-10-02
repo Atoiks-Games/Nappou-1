@@ -17,6 +17,6 @@ allprojects {
 }
 
 dependencies {
-    compile 'com.github.plankp:Jine:master-SNAPSHOT'
+    compile 'com.github.plankp:Jine:-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.10'
 }

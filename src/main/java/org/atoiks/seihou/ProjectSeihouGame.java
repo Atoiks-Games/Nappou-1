@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 
 import java.io.IOException;
 
@@ -94,7 +95,9 @@ public class ProjectSeihouGame extends Game {
             frame.setIcon(ImageIO.read(this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png")));
 
             try (AudioInputStream in = AudioSystem.getAudioInputStream(
-                    this.getClass().getResourceAsStream("/org/atoiks/seihou/music/title_screen.wav")
+                    new BufferedInputStream(
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/music/title_screen.wav")
+                    )
             )) {
                 Clip clip = AudioSystem.getClip();
                 clip.open(in);
@@ -103,7 +106,7 @@ public class ProjectSeihouGame extends Game {
                 clip.start();
             }
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
-            frame.abort();
+            frame.abort(ex.toString());
             return;
         }
 
@@ -174,7 +177,7 @@ public class ProjectSeihouGame extends Game {
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.bmp")
                     );
                 } catch (IOException ex) {
-                    frame.abort();
+                    frame.abort(ex.toString());
                     return;
                 }
                 state.set(State.INIT);
@@ -646,7 +649,9 @@ public class ProjectSeihouGame extends Game {
     @Override
     public void destroy() {
         for (int i = 0; i < musics.length; ++i) {
-            musics[i].close();
+            if (musics[i] != null) {
+                musics[i].close();
+            }
         }
     }
 }
