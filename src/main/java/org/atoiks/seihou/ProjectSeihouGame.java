@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +42,7 @@ public class ProjectSeihouGame extends Game {
     private static final float PLAYER_BULLET_RATE = 0.25f;
     private static final float PROTECTION_RATE = 3f;
 
-    private final List<BossData> BULLET_PATTERNS = new ArrayList<>();
+    private final BossData[] BULLET_PATTERNS = new BossData[5];
     private float[] patternFrame = {};
     private int patternFrameIdx = 0;
     private int patternIdx = 0;
@@ -50,12 +51,13 @@ public class ProjectSeihouGame extends Game {
     private boolean fireFlag = true;
     private boolean protectionFlag = false;
 
+    private final PlayerManager boss = new PlayerManager();
     private float bossDx = 0f;
     private float bossDy = 0f;
     private int timeLimit = 0;
 
-    private final PlayerManager boss = new PlayerManager();
     private final PlayerManager player = new PlayerManager();
+    private float atkType = 0f;
 
     private float pbTimer = 0f;
     private float bfTimer = 0f;
@@ -73,6 +75,12 @@ public class ProjectSeihouGame extends Game {
     private final List<Float> playerBulletX = new ArrayList<>(20);
     private final List<Float> playerBulletY = new ArrayList<>(20);
     private final List<Float> playerBulletR = new ArrayList<>(20);
+
+    private static final Random POWUP_GEN = new Random();
+    private static final float POWUP_SPEED = 15f;
+    private static final int POWUP_SIZE = 6;
+    private final List<Float> powupX = new ArrayList<>();
+    private final List<Float> powupY = new ArrayList<>();
 
     // bosses do not count as enemies (mini-bosses do though)
     private final List<Enemy> enemies = new ArrayList<>(32);
@@ -142,6 +150,9 @@ public class ProjectSeihouGame extends Game {
         playerBulletY.clear();
         playerBulletR.clear();
 
+        powupX.clear();
+        powupY.clear();
+
         enemies.clear();
     }
 
@@ -150,21 +161,21 @@ public class ProjectSeihouGame extends Game {
         switch (state.get()) {
             case State.LOADING:
                 try {
-                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    BULLET_PATTERNS[0] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/0.spa")
-                    ), 30, 0));
-                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    ), 30, 0);
+                    BULLET_PATTERNS[1] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/1.spa")
-                    ), 45, 200, 60));
-                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    ), 45, 200, 60);
+                    BULLET_PATTERNS[2] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/2.spa")
-                    ), 45, 180, 60));
-                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    ), 45, 180, 60);
+                    BULLET_PATTERNS[3] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/3.spa")
-                    ), 45, 200, 80));
-                    BULLET_PATTERNS.add(new BossData(BulletPatternAssembler.assembleFromStream(
+                    ), 45, 200, 80);
+                    BULLET_PATTERNS[4] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/4.spa")
-                    ), 125, 200, 100));
+                    ), 125, 200, 100);
 
                     imgName = ImageIO.read(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/name.bmp")
@@ -227,6 +238,7 @@ public class ProjectSeihouGame extends Game {
                 musics[0].start();
                 player.resetScore();
                 patternFrameIdx = 0;
+                atkType = 0;
                 if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
                 }
@@ -290,6 +302,8 @@ public class ProjectSeihouGame extends Game {
 
     private boolean upateBullet() {
         if (!protectionFlag) {
+            // Prevent awkard "The bullet for sure did not touch me scenarios"
+            // the radius of the player is made smaller
             if (enemyBullets.testCollision(player.getX(), player.getY(), PLAYER_R / 2)) {
                 daTimer = 0L;
                 state.set((player.deltaHp(-1) <= 0) ? State.LOSE : State.DIE_ANIM);
@@ -324,9 +338,22 @@ public class ProjectSeihouGame extends Game {
         if (fireFlag && keyboard.isKeyDown(KeyEvent.VK_Z)) {
             fireFlag = false;
             pbTimer = 0f;
-            playerBulletX.add(player.getX());
-            playerBulletY.add(player.getY());
-            playerBulletR.add(4f);
+            switch ((int) atkType) {
+                case 0:
+                    playerBulletX.add(player.getX());
+                    playerBulletY.add(player.getY());
+                    playerBulletR.add(4f);
+                    break;
+                case 1:
+                default:
+                    playerBulletX.add(player.getX() - 8);
+                    playerBulletY.add(player.getY());
+                    playerBulletR.add(4f);
+                    playerBulletX.add(player.getX() + 8);
+                    playerBulletY.add(player.getY());
+                    playerBulletR.add(4f);
+                    break;
+            }
         }
     }
 
@@ -424,6 +451,17 @@ public class ProjectSeihouGame extends Game {
             }
             enemies.remove(i--);
         }
+
+        for (int i = 0; i < powupY.size(); ++i) {
+            final float y = powupY.get(i) + POWUP_SPEED * dt;
+            if (y > FRAME_HEIGHT) {
+                powupX.remove(i);
+                powupY.remove(i);
+                --i;
+                continue;
+            }
+            powupY.set(i, y);
+        }
     }
 
     private boolean updateTimerLimit(final float dt) {
@@ -464,6 +502,10 @@ public class ProjectSeihouGame extends Game {
                     if (gcmp.reduceHp(1) <= 0) {
                         player.deltaScore(gcmp.SCORE);
                         enemies.remove(j);
+                        if (POWUP_GEN.nextBoolean()) {
+                            powupX.add(bulletX);
+                            powupY.add(bulletY);
+                        }
                     }
                     --i;
                     continue playerBulletLoop;
@@ -496,15 +538,26 @@ public class ProjectSeihouGame extends Game {
                 player.translateY(-dv);
             }
         }
+
+        for (int i = 0; i < powupY.size(); ++i) {
+            if (Utils.circlesCollide(player.getX(), player.getY(), PLAYER_R,
+                    powupX.get(i), powupY.get(i), POWUP_SIZE)) {
+                powupX.remove(i);
+                powupY.remove(i);
+                --i;
+
+                atkType += 0.1f;
+            }
+        }
     }
 
     private void advanceStage() {
-        state.set((++patternFrameIdx < BULLET_PATTERNS.size()) ? State.ADVANCE : State.WIN);
+        state.set((++patternFrameIdx < BULLET_PATTERNS.length) ? State.ADVANCE : State.WIN);
     }
 
     private void doAdvance() {
         reset();
-        final BossData data = BULLET_PATTERNS.get(patternFrameIdx);
+        final BossData data = BULLET_PATTERNS[patternFrameIdx];
         patternFrame = data.bulletSeq;
         boss.deltaHp(data.hp);
         boss.deltaScore(data.score);
@@ -596,6 +649,16 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void drawGame(Graphics g, boolean drawPlayer) {
+        g.setColor(Color.red);
+        try {
+            for (int i = 0; i < powupY.size(); ++i) {
+                final float x = powupX.get(i);
+                final float y = powupY.get(i);
+                g.fillRect((int) x - POWUP_SIZE / 2, (int) y - POWUP_SIZE / 2, POWUP_SIZE, POWUP_SIZE);
+            }
+        } catch (IndexOutOfBoundsException ex) {
+        }
+
         g.setColor(Color.white);
         try {
             for (int i = 0; i < playerBulletR.size(); ++i) {

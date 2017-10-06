@@ -63,8 +63,6 @@ public class BulletManager {
 
     public boolean testCollision(float x, float y, float r) {
         for (int i = 0; i < this.r.size(); ++i) {
-            // Prevent awkard "The bullet for sure did not touch me scenarios"
-            // the radius of the player is made smaller
             if (Utils.circlesCollide(this.x.get(i), this.y.get(i), this.r.get(i),
                     x, y, r)) {
                 this.r.remove(i);

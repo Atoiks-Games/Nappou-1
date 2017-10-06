@@ -60,13 +60,13 @@
     boss.limrad
 } speedy
 
+label loop
+
 delay 0 spacing 45 size 12
 tilt 15 boss.orbital
 tilt 105 boss.orbital
 tilt 195 boss.orbital
 tilt 285 boss.orbital
-
-label loop
 
 delay 2 nop
 
@@ -102,6 +102,12 @@ boss.setspd
 
 delay 2 x 0 y 0
 boss.setspd
+
+delay 0 spacing 45 size 12
+tilt 15 boss.orbital
+tilt 105 boss.orbital
+tilt 195 boss.orbital
+tilt 285 boss.orbital
 
 group pos_radial
 group neg_radial
