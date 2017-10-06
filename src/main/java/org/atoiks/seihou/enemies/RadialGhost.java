@@ -30,11 +30,6 @@ public class RadialGhost extends Enemy {
 
     @Override
     public void update(float dt) {
-        // +------------------+
-        // | x   PATH         |
-        // | |   FLIPPED BY Y | If at center, go straight down
-        // | \--------------> |
-        // +------------------+
         if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > ProjectSeihouGame.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;

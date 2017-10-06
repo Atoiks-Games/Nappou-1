@@ -171,6 +171,22 @@ public final class BulletPatternAssembler {
                     cached.add(props.getOrDefault("x", 0f));
                     cached.add(props.getOrDefault("y", 0f));
                     break;
+                case "enemy.orbital":
+                    cached.add(props.getOrDefault("delay", 0f));
+                    cached.add(12f); // enemy.orbital is type 12
+                    cached.add(props.getOrDefault("x", 0f));
+                    cached.add(props.getOrDefault("y", 0f));
+                    cached.add(props.getOrDefault("spacing", 0f));
+                    cached.add(props.getOrDefault("tilt", 0f));
+                    cached.add(props.getOrDefault("size", 0f));
+                    break;
+                case "boss.orbital":
+                    cached.add(props.getOrDefault("delay", 0f));
+                    cached.add(13f); // boss.orbital is type 13
+                    cached.add(props.getOrDefault("spacing", 0f));
+                    cached.add(props.getOrDefault("tilt", 0f));
+                    cached.add(props.getOrDefault("size", 0f));
+                    break;
                 default:
                     System.err.println("FAILED TO ASSEMBLE " + frags[i]);
                     break outer;

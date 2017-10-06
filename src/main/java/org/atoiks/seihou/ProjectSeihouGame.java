@@ -8,8 +8,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import java.util.List;
@@ -50,14 +50,11 @@ public class ProjectSeihouGame extends Game {
     private boolean fireFlag = true;
     private boolean protectionFlag = false;
 
-    private float bossX = 0f;
-    private float bossY = 0f;
     private float bossDx = 0f;
     private float bossDy = 0f;
-    private int bossHp = 0;
-    private int bossPts = 0;
     private int timeLimit = 0;
 
+    private final PlayerManager boss = new PlayerManager();
     private final PlayerManager player = new PlayerManager();
 
     private float pbTimer = 0f;
@@ -132,12 +129,11 @@ public class ProjectSeihouGame extends Game {
         fireFlag = true;
         patternIdx = 0;
 
-        bossX = GAME_CANVAS_WIDTH / 2f;
-        bossY = 30;
+        boss.setPosition(GAME_CANVAS_WIDTH / 2f, 30);
+        boss.resetHp();
+        boss.resetScore();
         bossDx = 0;
         bossDy = 0;
-        bossHp = 0;
-        bossPts = 0;
         timeLimit = 0;
 
         enemyBullets.clear();
@@ -341,14 +337,14 @@ public class ProjectSeihouGame extends Game {
                 case 0:
                     break;
                 case 1:
-                    enemyBullets.firePatternRadial(bossX, bossY,
+                    enemyBullets.firePatternRadial(boss.getX(), boss.getY(),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.PI * 2f,
                             patternFrame[++patternIdx], patternFrame[++patternIdx]);
                     break;
                 case 7:
-                    enemyBullets.firePatternRadial(bossX, bossY,
+                    enemyBullets.firePatternRadial(boss.getX(), boss.getY(),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             (float) Math.toRadians(patternFrame[++patternIdx]),
@@ -362,12 +358,11 @@ public class ProjectSeihouGame extends Game {
                             patternFrame[++patternIdx], patternFrame[++patternIdx]);
                     break;
                 case 3:
-                    bossX = patternFrame[++patternIdx];
-                    bossY = patternFrame[++patternIdx];
+                    boss.setPosition(patternFrame[++patternIdx], patternFrame[++patternIdx]);
                     break;
                 case 4:
-                    bossX += patternFrame[++patternIdx];
-                    bossY += patternFrame[++patternIdx];
+                    boss.translateX(patternFrame[++patternIdx]);
+                    boss.translateY(patternFrame[++patternIdx]);
                     break;
                 case 5:
                     bossDx = patternFrame[++patternIdx];
@@ -396,6 +391,19 @@ public class ProjectSeihouGame extends Game {
                             patternFrame[++patternIdx],
                             enemyBullets));
                     break;
+                case 12:
+                    enemies.add(new OrbitalGhost(patternFrame[++patternIdx],
+                            patternFrame[++patternIdx],
+                            patternFrame[++patternIdx],
+                            (float) Math.toRadians(patternFrame[++patternIdx]),
+                            patternFrame[++patternIdx]));
+                    break;
+                case 13:
+                    enemies.add(new BossOrbitalGhost(boss,
+                            patternFrame[++patternIdx],
+                            (float) Math.toRadians(patternFrame[++patternIdx]),
+                            patternFrame[++patternIdx]));
+                    break;
             }
             bfTimer = 0f;
             if (++patternIdx >= patternFrame.length) {
@@ -403,8 +411,8 @@ public class ProjectSeihouGame extends Game {
             }
         }
 
-        bossX += bossDx * dt;
-        bossY += bossDy * dt;
+        boss.translateX(bossDx * dt);
+        boss.translateY(bossDy * dt);
     }
 
     private void updateEnemyBehaviour(final float dt) {
@@ -433,12 +441,13 @@ public class ProjectSeihouGame extends Game {
             final float bulletY = playerBulletY.get(i);
             final float bulletR = playerBulletR.get(i);
 
-            if (Utils.circlesCollide(bulletX, bulletY, bulletR, bossX, bossY, PLAYER_R)) {
+            if (Utils.circlesCollide(bulletX, bulletY, bulletR,
+                    boss.getX(), boss.getY(), PLAYER_R)) {
                 playerBulletR.remove(i);
                 playerBulletX.remove(i);
                 playerBulletY.remove(i);
-                if ((bossHp -= 1) <= 0) {
-                    player.deltaScore(bossPts);
+                if (boss.deltaHp(-1) <= 0) {
+                    player.deltaScore(boss.getScore());
                     advanceStage();
                     return true;
                 }
@@ -497,8 +506,8 @@ public class ProjectSeihouGame extends Game {
         reset();
         final BossData data = BULLET_PATTERNS.get(patternFrameIdx);
         patternFrame = data.bulletSeq;
-        bossHp = data.hp;
-        bossPts = data.score;
+        boss.deltaHp(data.hp);
+        boss.deltaScore(data.score);
         timeLimit = data.timeout;
     }
 
@@ -604,7 +613,7 @@ public class ProjectSeihouGame extends Game {
         }
 
         g.setColor(Color.yellow);
-        g.fillOval((int) bossX - PLAYER_R, (int) bossY - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
+        g.fillOval((int) boss.getX() - PLAYER_R, (int) boss.getY() - PLAYER_R, PLAYER_R * 2, PLAYER_R * 2);
         enemyBullets.render(g);
 
         try {
@@ -630,7 +639,7 @@ public class ProjectSeihouGame extends Game {
 
         g.drawString("Enemy:", GAME_CANVAS_WIDTH + 14, 44);
         if (withStats) {
-            g.drawString(Integer.toString(bossHp), GAME_CANVAS_WIDTH + 14 + 50, 44);
+            g.drawString(Integer.toString(boss.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 44);
         }
 
         g.drawString("HP:", GAME_CANVAS_WIDTH + 14, 80);
