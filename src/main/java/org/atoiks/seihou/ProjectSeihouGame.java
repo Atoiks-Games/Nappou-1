@@ -54,7 +54,6 @@ public class ProjectSeihouGame extends Game {
     private int patternIdx = 0;
 
     private final AtomicInteger state = new AtomicInteger(State.LOADING);
-    private boolean fireFlag = true;
     private boolean protectionFlag = false;
 
     private final PlayerManager boss = new PlayerManager();
@@ -64,12 +63,15 @@ public class ProjectSeihouGame extends Game {
 
     private final PlayerManager player = new PlayerManager();
     private byte atkType = MASK_BULLET_MIN;
+    private byte ultCounter = 2;
 
-    private float pbTimer = 0f;
-    private float bfTimer = 0f;
-    private float pgTimer = 0f;
-    private long daTimer = 0L;
-    private long pTimer = 0L;
+    private float ultCooldownTimer = 0f;
+    private float playerFireTimer = 0f;
+    private float bossFireTimer = 0f;
+    private float gameTimer = 0f;
+
+    private long respawnProtectionTimer = 0L;
+    private long deathAnimTimer = 0L;
 
     private int initOptSel = 0;
 
@@ -137,10 +139,10 @@ public class ProjectSeihouGame extends Game {
         player.resetHp();
         player.deltaHp(5);
 
-        pbTimer = 0f;
-        bfTimer = 0f;
-        pgTimer = 0f;
-        fireFlag = true;
+        playerFireTimer = 0f;
+        ultCooldownTimer = 0f;
+        bossFireTimer = 0f;
+        gameTimer = 0f;
         patternIdx = 0;
 
         boss.setPosition(GAME_CANVAS_WIDTH / 2f, 30);
@@ -232,15 +234,15 @@ public class ProjectSeihouGame extends Game {
                     return;
                 }
 
-                if ((daTimer += deltaT) < 250) {
+                if ((deathAnimTimer += deltaT) < 250) {
                     return;
                 }
 
                 // reduce attack type to the level before
                 atkType >>>= 1;
 
-                daTimer = 0;
-                protectionFlag = true;
+                deathAnimTimer = 0;
+                enableRespawnProtection();
                 state.set(State.PLAYING);
                 break;
             }
@@ -249,6 +251,8 @@ public class ProjectSeihouGame extends Game {
                 player.resetScore();
                 patternFrameIdx = 0;
                 atkType = MASK_BULLET_MIN;
+                ultCounter = 2;
+
                 if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
                 }
@@ -302,11 +306,8 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void updateSpawnProtectionTime(long deltaT) {
-        if (protectionFlag) {
-            if ((pTimer += deltaT) > PROTECTION_RATE * 1000) {
-                pTimer = 0L;
-                protectionFlag = false;
-            }
+        if (protectionFlag && ((respawnProtectionTimer += deltaT) > PROTECTION_RATE * 1000)) {
+            protectionFlag = false;
         }
     }
 
@@ -315,7 +316,7 @@ public class ProjectSeihouGame extends Game {
             // Prevent awkard "The bullet for sure did not touch me scenarios"
             // the radius of the player is made smaller
             if (enemyBullets.testCollision(player.getX(), player.getY(), PLAYER_R / 2)) {
-                daTimer = 0L;
+                deathAnimTimer = 0L;
                 state.set((player.deltaHp(-1) <= 0) ? State.LOSE : State.DIE_ANIM);
                 return true;
             }
@@ -351,24 +352,37 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void procUserFire(final float dt) {
-        if ((pbTimer += dt) >= PLAYER_BULLET_RATE) {
-            fireFlag = true;
-        }
-        if (fireFlag && keyboard.isKeyDown(KeyEvent.VK_Z)) {
-            fireFlag = false;
-            pbTimer = 0f;
+        if ((playerFireTimer += dt) >= PLAYER_BULLET_RATE) {
+            if (keyboard.isKeyDown(KeyEvent.VK_Z)) {
+                playerFireTimer = 0f;
 
-            if ((atkType & MASK_BULLET_DFWD) == MASK_BULLET_DFWD) {
-                newPlayerBullet(player.getX() - 8, player.getY(), 0);
-                newPlayerBullet(player.getX() + 8, player.getY(), 0);
-            } else {
-                newPlayerBullet(player.getX(), player.getY(), 0);
-            }
-            if ((atkType & MASK_BULLET_DSPR) == MASK_BULLET_DSPR) {
-                newPlayerBullet(player.getX() - 8, player.getY(), -32);
-                newPlayerBullet(player.getX() + 8, player.getY(), 32);
+                if ((atkType & MASK_BULLET_DFWD) == MASK_BULLET_DFWD) {
+                    newPlayerBullet(player.getX() - 8, player.getY(), 0);
+                    newPlayerBullet(player.getX() + 8, player.getY(), 0);
+                } else {
+                    newPlayerBullet(player.getX(), player.getY(), 0);
+                }
+                if ((atkType & MASK_BULLET_DSPR) == MASK_BULLET_DSPR) {
+                    newPlayerBullet(player.getX() - 8, player.getY(), -32);
+                    newPlayerBullet(player.getX() + 8, player.getY(), 32);
+                }
             }
         }
+        if ((ultCooldownTimer += dt) >= PLAYER_BULLET_RATE) {
+            if (keyboard.isKeyDown(KeyEvent.VK_X)) {
+                if (ultCounter > 0) {
+                    ultCooldownTimer = 0;
+                    --ultCounter;
+                    enableRespawnProtection();
+                    enemyBullets.clear();
+                }
+            }
+        }
+    }
+
+    private void enableRespawnProtection() {
+        respawnProtectionTimer = 0L;
+        protectionFlag = true;
     }
 
     private void newPlayerBullet(float x, float y, float dx) {
@@ -378,8 +392,8 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void updateBossBehaviour(final float dt) {
-        bfTimer += dt;
-        while (bfTimer >= patternFrame[patternIdx]) {
+        bossFireTimer += dt;
+        while (bossFireTimer >= patternFrame[patternIdx]) {
             switch ((int) patternFrame[++patternIdx]) {
                 case 0:
                     break;
@@ -452,7 +466,7 @@ public class ProjectSeihouGame extends Game {
                             patternFrame[++patternIdx]));
                     break;
             }
-            bfTimer = 0f;
+            bossFireTimer = 0f;
             if (++patternIdx >= patternFrame.length) {
                 patternIdx = 0;
             }
@@ -485,7 +499,7 @@ public class ProjectSeihouGame extends Game {
     }
 
     private boolean updateTimerLimit(final float dt) {
-        if (timeLimit > 0 && (pgTimer += dt) >= timeLimit) {
+        if (timeLimit > 0 && (gameTimer += dt) >= timeLimit) {
             advanceStage();
             return true;
         }
@@ -718,7 +732,7 @@ public class ProjectSeihouGame extends Game {
         g.setColor(Color.lightGray);
         g.drawString("Time limit:", GAME_CANVAS_WIDTH + 14, 20);
         if (withStats) {
-            g.drawString(timeLimit > 0 ? Integer.toString(timeLimit - (int) pgTimer) : "unlimited", GAME_CANVAS_WIDTH + 14, 32);
+            g.drawString(timeLimit > 0 ? Integer.toString(timeLimit - (int) gameTimer) : "unlimited", GAME_CANVAS_WIDTH + 14, 32);
         }
 
         g.drawString("Enemy:", GAME_CANVAS_WIDTH + 14, 44);
@@ -726,9 +740,12 @@ public class ProjectSeihouGame extends Game {
             g.drawString(Integer.toString(boss.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 44);
         }
 
+        g.drawString("Deny:", GAME_CANVAS_WIDTH + 14, 68);
+        g.drawString(Integer.toString(ultCounter), GAME_CANVAS_WIDTH + 14 + 50, 68);
+
         g.drawString("HP:", GAME_CANVAS_WIDTH + 14, 80);
         if (withStats) {
-            g.drawString(Integer.toString(player.getHp()), GAME_CANVAS_WIDTH + 14 + 30, 80);
+            g.drawString(Integer.toString(player.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 80);
         }
 
         if (withStats && protectionFlag) {
