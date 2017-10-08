@@ -4,13 +4,22 @@ Bullet-hell game in java. Name is inspired from Touhou Project.
 
 # How to run
 
+*  If you have the source code:
+
 Requires jdk 8 or above
 
 ```gradlew run```
 
+*  If you downloaded from somewhere (the distributed version):
+
+1. Extract the zip / tar / whatever it came in
+2. Open the `bin` folder
+3. Run `ProjectSeihou` (one of them is for Windows, the other is for Nixes)
+
 # How to play
 
-1. Hit Enter key once you see sketchy main screen
-2. Arrow keys to move, Shift to slow down, Z to fire
-3. Escape to pause (Enter to continue or Q to quit)
-4. Enter to continue when game is over
+1. Launch the app
+2. Hit the Down Arrow Key until **Help** is selected
+3. Hit the Enter key and read it!
+
+Simple! Right? :trollface:
