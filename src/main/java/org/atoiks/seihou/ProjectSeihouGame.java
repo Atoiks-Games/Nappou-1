@@ -35,12 +35,18 @@ public class ProjectSeihouGame extends Game {
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
     private static final int PLAYER_R = 8;
-    private static final float PLAYER_FAST_V = 140;
-    private static final float PLAYER_SLOW_V = 85;
+    private static final int PLAYER_FAST_V = 140;
+    private static final int PLAYER_SLOW_V = 85;
 
-    private static final float PLAYER_BULLET_V = 170;
+    private static final int PLAYER_BULLET_V = 170;
+    private static final int PLAYER_BULLET_R = 4;
     private static final float PLAYER_BULLET_RATE = 0.25f;
     private static final float PROTECTION_RATE = 3f;
+
+    private static final byte MASK_BULLET_DFWD = 0b01000;
+    private static final byte MASK_BULLET_DSPR = 0b10000;
+    private static final byte MASK_BULLET_MIN = 0;
+    private static final byte MASK_BULLET_MAX = MASK_BULLET_DFWD | MASK_BULLET_DSPR;
 
     private final BossData[] BULLET_PATTERNS = new BossData[5];
     private float[] patternFrame = {};
@@ -57,7 +63,7 @@ public class ProjectSeihouGame extends Game {
     private int timeLimit = 0;
 
     private final PlayerManager player = new PlayerManager();
-    private float atkType = 0f;
+    private byte atkType = MASK_BULLET_MIN;
 
     private float pbTimer = 0f;
     private float bfTimer = 0f;
@@ -74,7 +80,7 @@ public class ProjectSeihouGame extends Game {
 
     private final List<Float> playerBulletX = new ArrayList<>(20);
     private final List<Float> playerBulletY = new ArrayList<>(20);
-    private final List<Float> playerBulletR = new ArrayList<>(20);
+    private final List<Float> playerBulletDx = new ArrayList<>(20);
 
     private static final Random POWUP_GEN = new Random();
     private static final float POWUP_SPEED = 15f;
@@ -148,7 +154,7 @@ public class ProjectSeihouGame extends Game {
 
         playerBulletX.clear();
         playerBulletY.clear();
-        playerBulletR.clear();
+        playerBulletDx.clear();
 
         powupX.clear();
         powupY.clear();
@@ -229,6 +235,10 @@ public class ProjectSeihouGame extends Game {
                 if ((daTimer += deltaT) < 250) {
                     return;
                 }
+
+                // reduce attack type to the level before
+                atkType >>>= 1;
+
                 daTimer = 0;
                 protectionFlag = true;
                 state.set(State.PLAYING);
@@ -238,7 +248,7 @@ public class ProjectSeihouGame extends Game {
                 musics[0].start();
                 player.resetScore();
                 patternFrameIdx = 0;
-                atkType = 0;
+                atkType = MASK_BULLET_MIN;
                 if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
                 }
@@ -314,17 +324,26 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void updatePlayerBulletPos(final float dt) {
-        for (int i = 0; i < playerBulletR.size(); ++i) {
-            if (playerBulletY.get(i) - playerBulletR.get(i) <= 0) {
-                playerBulletR.remove(i);
-                playerBulletX.remove(i);
-                playerBulletY.remove(i);
+        for (int i = 0; i < playerBulletY.size(); ++i) {
+            final float x = playerBulletX.get(i);
+            final float y = playerBulletY.get(i);
+            final float dx = playerBulletDx.get(i);
+            if (y <= PLAYER_BULLET_R || x < -PLAYER_BULLET_R
+                    || x > GAME_CANVAS_WIDTH + PLAYER_BULLET_R) {
+                removePlayerBulletIdx(i);
                 --i;
                 continue;
             }
 
-            playerBulletY.set(i, playerBulletY.get(i) - PLAYER_BULLET_V * dt);
+            playerBulletX.set(i, x + dx * dt);
+            playerBulletY.set(i, y - PLAYER_BULLET_V * dt);
         }
+    }
+
+    private void removePlayerBulletIdx(int i) {
+        playerBulletX.remove(i);
+        playerBulletY.remove(i);
+        playerBulletDx.remove(i);
     }
 
     private void updateBulletPos(final float dt) {
@@ -338,23 +357,24 @@ public class ProjectSeihouGame extends Game {
         if (fireFlag && keyboard.isKeyDown(KeyEvent.VK_Z)) {
             fireFlag = false;
             pbTimer = 0f;
-            switch ((int) atkType) {
-                case 0:
-                    playerBulletX.add(player.getX());
-                    playerBulletY.add(player.getY());
-                    playerBulletR.add(4f);
-                    break;
-                case 1:
-                default:
-                    playerBulletX.add(player.getX() - 8);
-                    playerBulletY.add(player.getY());
-                    playerBulletR.add(4f);
-                    playerBulletX.add(player.getX() + 8);
-                    playerBulletY.add(player.getY());
-                    playerBulletR.add(4f);
-                    break;
+
+            if ((atkType & MASK_BULLET_DFWD) == MASK_BULLET_DFWD) {
+                newPlayerBullet(player.getX() - 8, player.getY(), 0);
+                newPlayerBullet(player.getX() + 8, player.getY(), 0);
+            } else {
+                newPlayerBullet(player.getX(), player.getY(), 0);
+            }
+            if ((atkType & MASK_BULLET_DSPR) == MASK_BULLET_DSPR) {
+                newPlayerBullet(player.getX() - 8, player.getY(), -32);
+                newPlayerBullet(player.getX() + 8, player.getY(), 32);
             }
         }
+    }
+
+    private void newPlayerBullet(float x, float y, float dx) {
+        playerBulletX.add(x);
+        playerBulletY.add(y);
+        playerBulletDx.add(dx);
     }
 
     private void updateBossBehaviour(final float dt) {
@@ -474,16 +494,13 @@ public class ProjectSeihouGame extends Game {
 
     private boolean updatePlayerBullet() {
         playerBulletLoop:
-        for (int i = 0; i < playerBulletR.size(); ++i) {
+        for (int i = 0; i < playerBulletX.size(); ++i) {
             final float bulletX = playerBulletX.get(i);
             final float bulletY = playerBulletY.get(i);
-            final float bulletR = playerBulletR.get(i);
 
-            if (Utils.circlesCollide(bulletX, bulletY, bulletR,
+            if (Utils.circlesCollide(bulletX, bulletY, PLAYER_BULLET_R,
                     boss.getX(), boss.getY(), PLAYER_R)) {
-                playerBulletR.remove(i);
-                playerBulletX.remove(i);
-                playerBulletY.remove(i);
+                removePlayerBulletIdx(i);
                 if (boss.deltaHp(-1) <= 0) {
                     player.deltaScore(boss.getScore());
                     advanceStage();
@@ -495,13 +512,13 @@ public class ProjectSeihouGame extends Game {
 
             for (int j = 0; j < enemies.size(); ++j) {
                 final Enemy gcmp = enemies.get(j);
-                if (Utils.circlesCollide(bulletX, bulletY, bulletR, gcmp.x, gcmp.y, gcmp.COLLISION_RADIUS)) {
-                    playerBulletR.remove(i);
-                    playerBulletX.remove(i);
-                    playerBulletY.remove(i);
+                if (Utils.circlesCollide(bulletX, bulletY, PLAYER_BULLET_R,
+                        gcmp.x, gcmp.y, gcmp.COLLISION_RADIUS)) {
+                    removePlayerBulletIdx(i);
                     if (gcmp.reduceHp(1) <= 0) {
                         player.deltaScore(gcmp.SCORE);
                         enemies.remove(j);
+
                         if (POWUP_GEN.nextBoolean()) {
                             powupX.add(bulletX);
                             powupY.add(bulletY);
@@ -524,7 +541,7 @@ public class ProjectSeihouGame extends Game {
             }
         }
         if (keyboard.isKeyDown(KeyEvent.VK_LEFT)) {
-            if (player.getX() - dv > 0) {
+            if (player.getX() > dv) {
                 player.translateX(-dv);
             }
         }
@@ -534,7 +551,7 @@ public class ProjectSeihouGame extends Game {
             }
         }
         if (keyboard.isKeyDown(KeyEvent.VK_UP)) {
-            if (player.getY() - dv > 0) {
+            if (player.getY() > dv) {
                 player.translateY(-dv);
             }
         }
@@ -546,7 +563,9 @@ public class ProjectSeihouGame extends Game {
                 powupY.remove(i);
                 --i;
 
-                atkType += 0.1f;
+                if (++atkType > MASK_BULLET_MAX) {
+                    atkType = MASK_BULLET_MAX;
+                };
             }
         }
     }
@@ -661,9 +680,11 @@ public class ProjectSeihouGame extends Game {
 
         g.setColor(Color.white);
         try {
-            for (int i = 0; i < playerBulletR.size(); ++i) {
-                final float r = playerBulletR.get(i);
-                g.drawOval((int) (playerBulletX.get(i) - r), (int) (playerBulletY.get(i) - r), (int) (r * 2), (int) (r * 2));
+            for (int i = 0; i < playerBulletX.size(); ++i) {
+                g.drawOval((int) (playerBulletX.get(i) - PLAYER_BULLET_R),
+                        (int) (playerBulletY.get(i) - PLAYER_BULLET_R),
+                        PLAYER_BULLET_R * 2,
+                        PLAYER_BULLET_R * 2);
             }
         } catch (IndexOutOfBoundsException ex) {
         }
