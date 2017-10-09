@@ -117,7 +117,7 @@ public class ProjectSeihouGame extends Game {
     // bosses do not count as enemies (mini-bosses do though)
     private final List<Enemy> enemies = new ArrayList<>(32);
 
-    private final Clip[] musics = new Clip[2];
+    private final Clip[] musics = new Clip[3];
 
     public static final int GAME_CANVAS_WIDTH = 380;
     public static final int INFO_CANVAS_WIDTH = 120;
@@ -133,6 +133,7 @@ public class ProjectSeihouGame extends Game {
 
             loadMusic(0, "title_screen.wav");
             loadMusic(1, "tutorial.wav");
+            loadMusic(2, "unnamed.wav");
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
             frame.abort(ex.toString());
             return;

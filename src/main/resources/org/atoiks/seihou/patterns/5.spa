@@ -1,61 +1,30 @@
 {
     delay 0
-    x 10 y 0 limit 350
+    x 10 y 0 limit 170
+    enemy.weak
+    x 370 y 0 limit 160
+    enemy.weak
+    delay 0.1
+    x 10 y 0
+    enemy.weak
+    x 370 y 0 limit 170
+    enemy.weak
+    delay 0.1
+    x 10 y 0 limit 160
     enemy.weak
     x 370 y 0
     enemy.weak
-    delay 0.1
-    x 76 y 0
-    enemy.weak
-    x 304 y 0
-    enemy.weak
-    delay 0.1
-    x 152 y 0
-    enemy.weak
-    x 228 y 0
-    enemy.weak
-    delay 0.1
+
     x 190 y 0
-    enemy.weak
-} Enemies
+    enemy.radial
+    enemy.radial
+    enemy.radial
 
-{
-    delay 0 spacing 45 size 6
-    tilt 0
-    tilt 180
-} Shield1
-
-{
-    delay 0 spacing 45 size 6
-    tilt 90
-    tilt 270    
-} Shield2
-
-{
-    delay 0 spacing 45 size 6
-    tilt 45 boss.orbital 
-    tilt 105 boss.orbital
-    tilt 165 boss.orbital
-    tilt 225 boss.orbital
-    tilt 285 boss.orbital
-    tilt 345 boss.orbital
-} Shield3
-
-{
-     delay 0 spacing 45 size 6
-    tilt 45 player.orbital 
-    tilt 105 player.orbital
-    tilt 165 player.orbital
-    tilt 225 player.orbital
-    tilt 285 player.orbital
-    tilt 345 player.orbital
-} Antishield1
-
-{
-    delay 0 spacing 45 size 6
-    tilt 0 player.shield
-} Antishield2
-
+    delay 0 x 40 y 0
+    enemy.spiral
+    x 340 y 0
+    enemy.spiral
+} weaklings
 {
     delay 2 spacing 30 tilt 0 size 6 speed 120
     boss.radial
@@ -67,45 +36,11 @@
     boss.radial
     tilt 30
     boss.radial
-    tilt 37.5
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 52.5
-    boss.radial
-    tilt 60
-    boss.radial
-    tilt 67.5
-    boss.radial
-    tilt 75
-    boss.radial
-    tilt 82.5
-    boss.radial
-    tilt 90
-    boss.radial
-} Spiral
-
+} pos_radial
 {
-    
-    delay 2 spacing 30 tilt 90 size 6 speed 120
+    delay 2 spacing 30 tilt 30 size 6 speed 120
     boss.radial
-    delay 0.2 tilt 82.5
-    boss.radial
-    tilt 75
-    boss.radial
-    tilt 67.5
-    boss.radial
-    tilt 60
-    boss.radial
-    tilt 52.5
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 37.5
-    boss.radial
-    tilt 30
-    boss.radial
-    tilt 22.5
+    delay 0.2 tilt 22.5
     boss.radial
     tilt 15
     boss.radial
@@ -113,170 +48,135 @@
     boss.radial
     tilt 0
     boss.radial
-} ReverseSpiral
-
+} neg_radial
 {
-    delay 2 spacing 30 tilt 0 size 6 speed 120
+    delay 0.1 spacing 6 tilt 15 size 4 speed 110
     boss.radial
-    delay 0.2 tilt 45
-    boss.radial
-    tilt 0
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 0
-    boss.radial
-    tilt 30
-    boss.radial
-    tilt 60
-    boss.radial
-} Alternate
-
+} simple_radial
 {
-    delay 2 spacing 30 tilt 0 size 6 speed 120
+    delay 0.5 spacing 15 tilt 75 size 4 speed 140
+    limit 45
+    boss.limrad
+    delay 0.05
+    boss.limrad
+    boss.limrad
+    boss.limrad
+
+    spacing 6 tilt 15 size 4 speed 110
     boss.radial
-    delay 0.2 tilt 7.5
+
+    delay 0.05 spacing 15 tilt 75 size 4 speed 140
+    boss.limrad
+    boss.limrad
+    boss.limrad
+
+    spacing 6 tilt 30 size 4 speed 110
     boss.radial
-    tilt 15
+
+    delay 0.05 spacing 15 tilt 75 size 4 speed 140
+    boss.limrad
+    boss.limrad
+    boss.limrad
+
+    spacing 6 tilt 35 size 4 speed 110
     boss.radial
-    tilt 22.5
-    boss.radial
-    tilt 30
-    boss.radial
-    tilt 37.5
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 52.5
-    boss.radial
-    tilt 60
-    boss.radial
-    tilt 67.5
-    boss.radial
-    tilt 75
-    boss.radial
-    tilt 82.5
-    boss.radial
-    tilt 90
-    boss.radial
-    tilt 82.5
-    boss.radial
-    tilt 75
-    boss.radial
-    tilt 67.5
-    boss.radial
-    tilt 60
-    boss.radial
-    tilt 52.5
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 37.5
-    boss.radial
-    tilt 30
-    boss.radial
-    tilt 22.5
-    boss.radial
-    tilt 15
-    boss.radial
-    tilt 7.5
-    boss.radial
-    tilt 0
-    boss.radial
-    spacing 45 size 6
-    tilt 45 player.orbital 
-    tilt 105 player.orbital
-    tilt 165 player.orbital
-    tilt 225 player.orbital
-    tilt 285 player.orbital
-    tilt 345 player.orbital
-    delay 0.2 spacing 30 tilt 90 size 6 speed 120
-    boss.radial
-    tilt 82.5
-    boss.radial
-    tilt 75
-    boss.radial
-    tilt 67.5
-    boss.radial
-    tilt 60
-    boss.radial
-    tilt 52.5
-    boss.radial
-    tilt 45
-    boss.radial
-    tilt 37.5
-    boss.radial
-    tilt 30
-    boss.radial
-    tilt 22.5
-    boss.radial
-    tilt 15
-    boss.radial
-    tilt 7.5
-    boss.radial
-    tilt 0
-    boss.radial
-} YouShouldBeUsingYourUltimateRightAboutNow
+
+    delay 0.05 spacing 15 tilt 75 size 4 speed 140
+    boss.limrad
+    boss.limrad
+    boss.limrad
+} speedy
+
+delay 0 spacing 45 size 12
+tilt 15 boss.orbital
+tilt 105 boss.orbital
+tilt 195 boss.orbital
+tilt 285 boss.orbital
+
+x 0 y -20
+boss.setspd
+
+group weaklings
+group weaklings
+
+delay 5 y 20
+boss.setspd
 
 label loop
 
-group Enemies
-group Shield3
-group Antishield2
+group pos_radial
+group neg_radial
+group pos_radial
 
-delay 2 nop
+delay 0.1 x 0 y 20
+boss.setspd
 
-group Spiral
+delay 0.5
+group speedy
 
-delay 1 nop
+x 0 y 0
+boss.setspd
 
-group Alternate
+group simple_radial
 
-delay 2 nop
+group speedy
 
-group ReverseSpiral
+delay 0.1 x 50 y -20
+boss.setspd
 
-delay 1 nop
+delay 2 x 0 y 0
+boss.setspd
 
-group Alternate
+group pos_radial
+group neg_radial
+group pos_radial
 
-delay 2 nop
-group Enemies
-group Shield1
-group Antishield1
+delay 0.1 x -50 y 20
+boss.setspd
 
-delay 2 nop
+delay 2 x 0 y 0
+boss.setspd
 
-group Spiral
+delay 0 spacing 45 size 12
+tilt 15 boss.orbital
+tilt 105 boss.orbital
+tilt 195 boss.orbital
+tilt 285 boss.orbital
 
-delay 1 nop
+group pos_radial
+group neg_radial
+group pos_radial
 
-group Antishield1
+delay 0.1 x -50 y -20
+boss.setspd
 
-delay 2 nop
+delay 2 x 0 y 0
+boss.setspd
 
-group ReverseSpiral
+group pos_radial
+group neg_radial
+group pos_radial
 
-delay 1 nop
+delay 0.1 x 50 y 20
+boss.setspd
 
-group Shield2
+delay 2 x 0 y 0
+boss.setspd
 
-delay 3 nop
+group pos_radial
+group neg_radial
+group pos_radial
 
-group Enemies
-delay 0.3 nop
-group Enemies
-delay 0.2 nop
-group Enemies
-delay 0.1 nop
-group Enemies
-group Shield1
-group Shield2
-group Shield3
+delay 0.1 x 0 y -20
+boss.setspd
 
-delay 5 nop
+delay 2 x 0 y 0
+boss.setspd
 
-group Antishield2
-group YouShouldBeUsingYourUltimateRightAboutNow
+delay 0 spacing 45 size 12
+tilt 15 boss.orbital
+tilt 105 boss.orbital
+tilt 195 boss.orbital
+tilt 285 boss.orbital
 
 jmp loop

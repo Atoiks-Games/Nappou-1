@@ -1,174 +1,101 @@
 {
-    delay 0.1 limit 350
-    x 10 y 0
-} downfall
+    delay 0
+    spacing 15 tilt 0 x 190 y 130
+    size 4 speed 140 radial
+    size 8 speed 80 radial
+    tilt 20
+    size 4 speed 140 radial
+    tilt 0
+    size 6 speed 115 radial
+} center_rad
+{
+    delay 0 x 30 y 0 limit 170
+    enemy.weak
+    delay 0.1 x 10 y 0 limit 190
+    enemy.weak
+} left_weak
+{
+    delay 0 x 350 y 0 limit 170
+    enemy.weak
+    delay 0.1 x 370 y 0 limit 190
+    enemy.weak
+} right_weak
 
 {
-    delay 0.1 limit 350
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 300
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 250
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 200
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 150
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 100
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 50
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 0
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-} bottomup
+    group left_weak
+    delay 0.5 nop
+    group right_weak
+    delay 0.5 nop
+    group left_weak
+    delay 0.5 nop
+    group right_weak
+} mob_cycle
 
-{
-    delay 0.1 limit 0
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 50
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 100
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 150
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 200
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 250
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 300
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-    delay 0.1 limit 350
-    x 10 y 0
-    enemy.weak
-    x 350 y 0
-    enemy.weak
-} topdown
+delay 0 x 0 y -20
+boss.setspd
 
-{
-    delay 0.1 spacing 5 tilt 180 limit 360 size 3 speed 140
-    boss.limrad
-} downslice
+group mob_cycle
 
-{
-    delay 0.1 spacing 5 tilt 0 limit 180 size 3 speed 140
-    boss.limrad
-} upslice
+delay 0.5 x 150 y 0 enemy.spiral
+delay 0 x 230 y 0 enemy.spiral
+
+group mob_cycle
+
+delay 5 x 0 y 20
+boss.setspd
+
+x 0 y 0
+boss.setspd
 
 label loop
 
-delay 0 x 0 y 20 boss.setspd
-group downfall
+delay 0.1 x 20 y 0
+boss.setspd
 
-delay 0.1 nop
-group downfall
+delay 6 x 10 y 35
+boss.setspd
 
-delay 0.1 nop
-group downfall
+delay 0 x 30 y 20
+spacing 15 size 8 speed 80
+tilt 0 radial
+delay 0.2
+tilt 7.5 radial
+delay 0.2
+tilt 0 radial
 
-delay 0.1 nop
-group downfall
+delay 5.6 x -60 y -20
+boss.setspd
 
-delay 0.1 nop
-group downfall
+delay 1.5
+spacing 5 tilt 65 size 5 speed 110 limit 140
+boss.limrad
 
-delay 0.1 nop
-group downfall
+delay 1.5 x -60 y 20
+boss.setspd
 
-delay 0.1 nop
-group downfall
+delay 1.5
+spacing 5 tilt -15 size 5 speed 110 limit 140
+boss.limrad
 
-delay 0.1 nop
-group downfall
+delay 1.5 x 10 y -20
+boss.setspd
 
-delay 0.1 nop
-group downfall
+delay 0 x 350 y 20
+spacing 15 size 8 speed 80
+tilt 0 radial
+delay 0.2
+tilt 7.5 radial
+delay 0.2
+tilt 0 radial
 
-delay 0.1 nop
-group downfall
+delay 5.6 x 20 y 0
+boss.setspd
 
-delay 0.1 nop
-delay 0 x 0 y -20 boss.setspd
-group downfall
-group topdown
-group downslice
+delay 3 nop
+group center_rad
 
+delay 2.9 nop
+group center_rad
 
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-
-delay 0.1 nop
-group downfall
-group bottomup
-group upslice
-
-
+delay 0
 jmp loop
