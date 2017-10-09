@@ -1,12 +1,14 @@
 package org.atoiks.seihou.enemies;
 
+import org.atoiks.seihou.PlayerManager;
+
 public class OrbitalGhost extends AbstractOrbital {
 
     private final float CENTER_X;
     private final float CENTER_Y;
 
-    public OrbitalGhost(float x, float y, float r, float theta, float size) {
-        super(r, theta, size);
+    public OrbitalGhost(float x, float y, float r, float theta, float size, PlayerManager player) {
+        super(r, theta, size, player);
         this.CENTER_X = x;
         this.CENTER_Y = y;
     }

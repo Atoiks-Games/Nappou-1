@@ -18,23 +18,21 @@ public class WeakGhost extends Enemy {
     private final int DIRECTION;
     private final float Y_LIMIT;
     private final BulletManager BULLET_POOL;
-    private final PlayerManager PLAYER;
 
     private float fireTimer;
 
     public WeakGhost(float x, float y, float limY, BulletManager manager, PlayerManager player) {
-        super(3f, 1, 1);
+        super(3f, 1, 1, player);
         this.x = x;
         this.y = y;
         this.Y_LIMIT = limY;
         this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
         this.BULLET_POOL = manager;
-        this.PLAYER = player;
         this.fireTimer = RND.nextFloat() * FIRE_RATE;
     }
 
     @Override
-    public void update(float dt) {
+    public void onUpdate(float dt) {
         // +------------------+
         // | x   PATH         |
         // | |   FLIPPED BY Y | If at center, go straight down
@@ -51,7 +49,7 @@ public class WeakGhost extends Enemy {
 
         if ((fireTimer += dt) >= FIRE_RATE) {
             fireTimer = 0;
-            BULLET_POOL.addBullet(x, y, COLLISION_RADIUS, PLAYER.getX() - x, PLAYER.getY() - y);
+            BULLET_POOL.addBullet(x, y, COLLISION_RADIUS, player.getX() - x, player.getY() - y);
         }
 
         final float dv = dt * SPEED;

@@ -5,6 +5,7 @@ import org.atoiks.seihou.ProjectSeihouGame;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import org.atoiks.seihou.PlayerManager;
 
 public class SpiralGhost extends Enemy {
 
@@ -17,8 +18,8 @@ public class SpiralGhost extends Enemy {
     private float fireTimer;
     private float fireAngle;
 
-    public SpiralGhost(float x, float y, BulletManager manager) {
-        super(5f, 6, 5);
+    public SpiralGhost(float x, float y, BulletManager manager, PlayerManager player) {
+        super(5f, 6, 5, player);
         this.x = x;
         this.y = y;
         this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
@@ -28,7 +29,7 @@ public class SpiralGhost extends Enemy {
     }
 
     @Override
-    public void update(float dt) {
+    public void onUpdate(float dt) {
         if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > ProjectSeihouGame.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;

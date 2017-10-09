@@ -6,8 +6,8 @@ public class BossOrbitalGhost extends AbstractOrbital {
 
     private final PlayerManager BOSS_MGR;
 
-    public BossOrbitalGhost(PlayerManager bossMgr, float r, float theta, float size) {
-        super(r, theta, size);
+    public BossOrbitalGhost(PlayerManager bossMgr, float r, float theta, float size, PlayerManager player) {
+        super(r, theta, size, player);
         this.BOSS_MGR = bossMgr;
     }
 

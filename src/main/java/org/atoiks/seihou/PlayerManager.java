@@ -4,7 +4,9 @@ package org.atoiks.seihou;
  *
  * @author YTENG
  */
-public class PlayerManager {
+public abstract class PlayerManager {
+
+    public static final int PLAYER_RADIUS = 8;
 
     private float x;
     private float y;
@@ -18,6 +20,14 @@ public class PlayerManager {
     public void resetScore() {
         score = 0;
     }
+
+    /**
+     *
+     * @param deltaHp
+     * @return true if now the player is considered dead (hp &le; 0), false
+     * otherwise
+     */
+    public abstract boolean gotHit(int deltaHp);
 
     public int deltaHp(int delta) {
         return hp += delta;

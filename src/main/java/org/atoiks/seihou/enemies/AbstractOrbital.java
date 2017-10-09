@@ -2,6 +2,7 @@ package org.atoiks.seihou.enemies;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import org.atoiks.seihou.PlayerManager;
 
 /**
  *
@@ -12,14 +13,14 @@ public abstract class AbstractOrbital extends Enemy {
     protected final float ORBITAL_R;
     protected float theta;
 
-    public AbstractOrbital(float r, float theta, float size) {
-        super(size, (int) (0.2 * size), (int) size);
+    public AbstractOrbital(float r, float theta, float size, PlayerManager player) {
+        super(size, (int) (0.2 * size), (int) size, player);
         this.ORBITAL_R = r;
         this.theta = theta;
     }
 
     @Override
-    public void update(float dt) {
+    public void onUpdate(float dt) {
         this.x = this.centerX() + this.ORBITAL_R * (float) Math.cos(this.theta);
         this.y = this.centerY() + this.ORBITAL_R * (float) Math.sin(this.theta);
         this.theta += Math.PI / 3 * dt;

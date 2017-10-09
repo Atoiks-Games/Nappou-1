@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import java.util.Random;
+import org.atoiks.seihou.PlayerManager;
 
 public class RadialGhost extends Enemy {
 
@@ -19,8 +20,8 @@ public class RadialGhost extends Enemy {
 
     private float fireTimer;
 
-    public RadialGhost(float x, float y, BulletManager manager) {
-        super(3f, 2, 2);
+    public RadialGhost(float x, float y, BulletManager manager, PlayerManager player) {
+        super(3f, 2, 2, player);
         this.x = x;
         this.y = y;
         this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
@@ -29,7 +30,7 @@ public class RadialGhost extends Enemy {
     }
 
     @Override
-    public void update(float dt) {
+    public void onUpdate(float dt) {
         if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > ProjectSeihouGame.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;
