@@ -808,7 +808,7 @@ public class ProjectSeihouGame extends Game {
 
         g.drawString("HP:", GAME_CANVAS_WIDTH + 14, 80);
         if (withStats) {
-            g.drawString(Integer.toString(player.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 80);
+            g.drawString(Integer.toString(Math.max(0, player.getHp())), GAME_CANVAS_WIDTH + 14 + 50, 80);
         }
 
         if (withStats && protectionFlag) {
