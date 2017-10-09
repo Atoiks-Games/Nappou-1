@@ -187,6 +187,20 @@ public final class BulletPatternAssembler {
                     cached.add(props.getOrDefault("tilt", 0f));
                     cached.add(props.getOrDefault("size", 0f));
                     break;
+                case "player.orbital":
+                    cached.add(props.getOrDefault("delay", 0f));
+                    cached.add(14f); // player.orbital is type 14
+                    cached.add(props.getOrDefault("spacing", 0f));
+                    cached.add(props.getOrDefault("tilt", 0f));
+                    cached.add(props.getOrDefault("size", 0f));
+                    break;
+                case "player.shield":
+                    cached.add(props.getOrDefault("delay", 0f));
+                    cached.add(15f); // player.shield is type 15
+                    cached.add(props.getOrDefault("spacing", 0f));
+                    cached.add(props.getOrDefault("tilt", 0f));
+                    cached.add(props.getOrDefault("size", 0f));
+                    break;
                 default:
                     System.err.println("FAILED TO ASSEMBLE " + frags[i]);
                     break outer;

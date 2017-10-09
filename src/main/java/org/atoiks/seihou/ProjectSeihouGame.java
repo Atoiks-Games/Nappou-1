@@ -47,7 +47,7 @@ public class ProjectSeihouGame extends Game {
     private static final byte MASK_BULLET_MIN = 0;
     private static final byte MASK_BULLET_MAX = MASK_BULLET_DFWD | MASK_BULLET_DSPR;
 
-    private final BossData[] BULLET_PATTERNS = new BossData[5];
+    private final BossData[] BULLET_PATTERNS = new BossData[7];
     private float[] patternFrame = {};
     private int patternFrameIdx = 0;
     private int patternIdx = 0;
@@ -212,6 +212,12 @@ public class ProjectSeihouGame extends Game {
                     ), 45, 200, 80);
                     BULLET_PATTERNS[4] = new BossData(BulletPatternAssembler.assembleFromStream(
                             this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/4.spa")
+                    ), 45, 200, 80);
+                    BULLET_PATTERNS[5] = new BossData(BulletPatternAssembler.assembleFromStream(
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/5.spa")
+                    ), 150, 350, 115);
+                    BULLET_PATTERNS[6] = new BossData(BulletPatternAssembler.assembleFromStream(
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/6.spa")
                     ), 125, 200, 100);
 
                     imgName = ImageIO.read(
@@ -270,6 +276,7 @@ public class ProjectSeihouGame extends Game {
                     musics[0].start();
 
                     player.resetScore();
+                    // Modify this line to test a particular level directly
                     patternFrameIdx = 0;
                     atkType = MASK_BULLET_MIN;
                     ultCounter = 2;
@@ -497,6 +504,19 @@ public class ProjectSeihouGame extends Game {
                     break;
                 case 13:
                     enemies.add(new BossOrbitalGhost(boss,
+                            patternFrame[++patternIdx],
+                            (float) Math.toRadians(patternFrame[++patternIdx]),
+                            patternFrame[++patternIdx], player));
+                    break;
+                case 14:
+                    enemies.add(new OrbitalGhost(player.getX(),
+                            player.getY(),
+                            patternFrame[++patternIdx],
+                            (float) Math.toRadians(patternFrame[++patternIdx]),
+                            patternFrame[++patternIdx], player));
+                    break;
+                case 15:
+                    enemies.add(new BossOrbitalGhost(player,
                             patternFrame[++patternIdx],
                             (float) Math.toRadians(patternFrame[++patternIdx]),
                             patternFrame[++patternIdx], player));
