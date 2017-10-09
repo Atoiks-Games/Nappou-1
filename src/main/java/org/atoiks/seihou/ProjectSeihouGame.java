@@ -116,7 +116,6 @@ public class ProjectSeihouGame extends Game {
                 clip.open(in);
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
                 musics[0] = clip;
-                clip.start();
             }
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
             frame.abort(ex.toString());
@@ -247,11 +246,15 @@ public class ProjectSeihouGame extends Game {
                 break;
             }
             case State.INIT:
-                musics[0].start();
-                player.resetScore();
-                patternFrameIdx = 0;
-                atkType = MASK_BULLET_MIN;
-                ultCounter = 2;
+                if (!musics[0].isRunning()) {
+                    musics[0].setMicrosecondPosition(0);
+                    musics[0].start();
+
+                    player.resetScore();
+                    patternFrameIdx = 0;
+                    atkType = MASK_BULLET_MIN;
+                    ultCounter = 2;
+                }
 
                 if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
@@ -290,8 +293,6 @@ public class ProjectSeihouGame extends Game {
                 }
                 break;
             case State.HELP:
-                musics[0].start();
-            // FALLTHROUGH
             case State.LOSE:
             case State.WIN:
                 if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
@@ -579,7 +580,7 @@ public class ProjectSeihouGame extends Game {
 
                 if (++atkType > MASK_BULLET_MAX) {
                     atkType = MASK_BULLET_MAX;
-                };
+                }
             }
         }
     }
