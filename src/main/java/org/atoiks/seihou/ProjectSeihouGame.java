@@ -135,6 +135,7 @@ public class ProjectSeihouGame extends Game {
             loadMusic(1, "tutorial.wav");
             loadMusic(2, "unnamed.wav");
             loadMusic(3, "ding_around.wav");
+//            loadMusic(6, "ding_around_rev.wav");
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
             frame.abort(ex.toString());
             return;
@@ -323,11 +324,16 @@ public class ProjectSeihouGame extends Game {
                     return;
                 }
                 break;
-            case State.HELP:
             case State.LOSE:
             case State.WIN:
+                if (patternFrameIdx + 1 < musics.length) {
+                    musics[patternFrameIdx + 1].stop();
+                }
+            // FALLTHROUGH
+            case State.HELP:
                 if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
                     state.set(State.INIT);
+                    return;
                 }
                 if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
                     frame.abort();
