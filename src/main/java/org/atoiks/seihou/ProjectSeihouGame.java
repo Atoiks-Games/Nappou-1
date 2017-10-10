@@ -74,7 +74,7 @@ public class ProjectSeihouGame extends Game {
         @Override
         public boolean gotHit(int deltaHp) {
             if (!protectionFlag) {
-                if (player.deltaHp(-1) <= 0) {
+                if (player.deltaHp(deltaHp) <= 0) {
                     state.set(State.LOSE);
                     return true;
                 }
