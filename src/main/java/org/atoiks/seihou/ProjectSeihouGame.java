@@ -84,7 +84,7 @@ public class ProjectSeihouGame extends Game {
                 }
 
                 enableRespawnProtection();
-                hitAnimTimer = 0L;
+                hitAnimTimer = 0f;
                 state.set(State.HIT_ANIM);
             }
             return false;
@@ -98,8 +98,8 @@ public class ProjectSeihouGame extends Game {
     private float bossFireTimer = 0f;
     private float gameTimer = 0f;
 
-    private long respawnProtectionTimer = 0L;
-    private long hitAnimTimer = 0L;
+    private float respawnProtectionTimer = 0f;
+    private float hitAnimTimer = 0f;
 
     private int initOptSel = 0;
 
@@ -204,7 +204,8 @@ public class ProjectSeihouGame extends Game {
     }
 
     @Override
-    public void update(long deltaT) {
+    public void update(double deltaT) {
+        final float dt = (float) deltaT;
         switch (state.get()) {
             case State.LOADING:
                 try {
@@ -255,24 +256,20 @@ public class ProjectSeihouGame extends Game {
                     return;
                 }
 
-                final float dt = deltaT / 1000f;
-
                 procPlayerMovement(dt);
                 procUserFire(dt);
-                updateSpawnProtectionTime(deltaT);
+                updateSpawnProtectionTime(dt);
                 if (procGenericUpdate(dt)) {
                     return;
                 }
                 break;
             }
             case State.HIT_ANIM: {
-                final float dt = deltaT / 1000f;
-
                 if (procGenericUpdate(dt)) {
                     return;
                 }
 
-                if ((hitAnimTimer += deltaT) < 250) {
+                if ((hitAnimTimer += dt) < 0.25) {
                     return;
                 }
 
@@ -378,8 +375,8 @@ public class ProjectSeihouGame extends Game {
         return false;
     }
 
-    private void updateSpawnProtectionTime(long deltaT) {
-        if (protectionFlag && ((respawnProtectionTimer += deltaT) > PROTECTION_RATE * 1000)) {
+    private void updateSpawnProtectionTime(float deltaT) {
+        if (protectionFlag && ((respawnProtectionTimer += deltaT) > PROTECTION_RATE)) {
             protectionFlag = false;
         }
     }
