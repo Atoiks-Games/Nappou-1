@@ -47,6 +47,10 @@ public class ProjectSeihouGame extends Game {
     private static final byte MASK_BULLET_MIN = 0;
     private static final byte MASK_BULLET_MAX = MASK_BULLET_DFWD | MASK_BULLET_DSPR;
 
+    // Game mode
+    private byte gameMode = State.STORY_MODE;
+
+    // Story mode data: Scripted attacks
     private final BossData[] BULLET_PATTERNS = new BossData[7];
     private float[] patternFrame = {};
     private int patternFrameIdx = 0;
@@ -239,7 +243,9 @@ public class ProjectSeihouGame extends Game {
                 state.set(State.INIT);
                 break;
             case State.PLAYING: {
-                if (patternFrameIdx + 1 < musics.length && !musics[patternFrameIdx + 1].isRunning()) {
+                if (gameMode == State.STORY_MODE
+                        && patternFrameIdx + 1 < musics.length
+                        && !musics[patternFrameIdx + 1].isRunning()) {
                     musics[patternFrameIdx + 1].setMicrosecondPosition(0);
                     musics[patternFrameIdx + 1].start();
                 }
@@ -299,12 +305,19 @@ public class ProjectSeihouGame extends Game {
                         case 0:
                             doAdvance();
                             musics[0].stop();
+                            gameMode = State.STORY_MODE;
                             state.set(State.PLAYING);
                             return;
                         case 1:
-                            state.set(State.HELP);
+                            doAdvance();
+                            musics[0].stop();
+                            gameMode = State.ENDLESS_MODE;
+                            state.set(State.PLAYING);
                             return;
                         case 2:
+                            state.set(State.HELP);
+                            return;
+                        case 3:
                             musics[0].stop();
                             frame.abort();
                             return;
@@ -315,15 +328,20 @@ public class ProjectSeihouGame extends Game {
                 doAdvance();
             }
             case State.PAUSE:
+                if (patternFrameIdx + 1 < musics.length) {
+                    musics[patternFrameIdx + 1].stop();
+                }
                 if (keyboard.isKeyDown(KeyEvent.VK_ENTER)) {
+                    if (gameMode == State.STORY_MODE && patternFrameIdx + 1 < musics.length) {
+                        // continue from after pause (rely on State.PLAYING
+                        // rewinds the entire track)
+                        musics[patternFrameIdx + 1].start();
+                    }
                     state.set(State.PLAYING);
                     return;
                 }
                 if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
                     state.set(State.INIT);
-                    if (patternFrameIdx + 1 < musics.length) {
-                        musics[patternFrameIdx + 1].stop();
-                    }
                     return;
                 }
                 break;
@@ -446,6 +464,11 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void updateBossBehaviour(final float dt) {
+        if (gameMode == State.ENDLESS_MODE) {
+            // endless mode has no bosses
+            return;
+        }
+
         bossFireTimer += dt;
         while (bossFireTimer >= patternFrame[patternIdx]) {
             switch ((int) patternFrame[++patternIdx]) {
@@ -571,7 +594,9 @@ public class ProjectSeihouGame extends Game {
     }
 
     private boolean updateTimerLimit(final float dt) {
-        if (timeLimit > 0 && (gameTimer += dt) >= timeLimit) {
+        if (gameMode != State.ENDLESS_MODE
+                && timeLimit > 0 && (gameTimer += dt) >= timeLimit) {
+            // No timeouts in endless mode
             advanceStage();
             return true;
         }
@@ -584,14 +609,17 @@ public class ProjectSeihouGame extends Game {
             final float bulletX = playerBulletX.get(i);
             final float bulletY = playerBulletY.get(i);
 
-            if (Utils.circlesCollide(bulletX, bulletY, PLAYER_BULLET_R,
-                    boss.getX(), boss.getY(), PlayerManager.PLAYER_RADIUS)) {
-                removePlayerBulletIdx(i);
-                if (boss.gotHit(-1)) {
-                    return true;
+            if (gameMode != State.ENDLESS_MODE) {
+                // Endless mode has no boss
+                if (Utils.circlesCollide(bulletX, bulletY, PLAYER_BULLET_R,
+                        boss.getX(), boss.getY(), PlayerManager.PLAYER_RADIUS)) {
+                    removePlayerBulletIdx(i);
+                    if (boss.gotHit(-1)) {
+                        return true;
+                    }
+                    --i;
+                    continue;
                 }
-                --i;
-                continue;
             }
 
             for (int j = 0; j < enemies.size(); ++j) {
@@ -683,9 +711,10 @@ public class ProjectSeihouGame extends Game {
             case State.INIT:
                 g.drawImage(imgName, 18, 0, null);
                 g.setColor(Color.cyan);
-                g.drawString("START", CANVAS_WIDTH / 2 - 16, 82);
-                g.drawString("HELP", CANVAS_WIDTH / 2 - 12, 104);
-                g.drawString("QUIT", CANVAS_WIDTH / 2 - 12, 136);
+                g.drawString("STORY", CANVAS_WIDTH / 2 - 16, 82);
+                g.drawString("ENDLESS", CANVAS_WIDTH / 2 - 24, 104);
+                g.drawString("HELP", CANVAS_WIDTH / 2 - 12, 126);
+                g.drawString("QUIT", CANVAS_WIDTH / 2 - 12, 164);
                 g.drawString("Made with love by Atoiks Games", 240, 288);
                 g.drawString("Visit us at http://atoiks-games.github.io", 240, 300);
 
@@ -697,13 +726,16 @@ public class ProjectSeihouGame extends Game {
                         g.drawLine(CANVAS_WIDTH / 2 - 10, 104, CANVAS_WIDTH / 2 + 10, 104);
                         break;
                     case 2:
-                        g.drawLine(CANVAS_WIDTH / 2 - 10, 136, CANVAS_WIDTH / 2 + 10, 136);
+                        g.drawLine(CANVAS_WIDTH / 2 - 10, 126, CANVAS_WIDTH / 2 + 10, 126);
+                        break;
+                    case 3:
+                        g.drawLine(CANVAS_WIDTH / 2 - 10, 164, CANVAS_WIDTH / 2 + 10, 164);
                         break;
                     default:
                         if (initOptSel < 0) {
-                            initOptSel = 2;
+                            initOptSel = 3;
                         }
-                        initOptSel %= 3;
+                        initOptSel %= 4;
                         break;
                 }
                 break;
@@ -781,11 +813,20 @@ public class ProjectSeihouGame extends Game {
             if (protectionFlag) {
                 g.setColor(Color.green);
             }
-            g.fillOval((int) player.getX() - PlayerManager.PLAYER_RADIUS, (int) player.getY() - PlayerManager.PLAYER_RADIUS, PlayerManager.PLAYER_RADIUS * 2, PlayerManager.PLAYER_RADIUS * 2);
+            g.fillOval((int) player.getX() - PlayerManager.PLAYER_RADIUS,
+                    (int) player.getY() - PlayerManager.PLAYER_RADIUS,
+                    PlayerManager.PLAYER_RADIUS * 2,
+                    PlayerManager.PLAYER_RADIUS * 2);
         }
 
         g.setColor(Color.yellow);
-        g.fillOval((int) boss.getX() - PlayerManager.PLAYER_RADIUS, (int) boss.getY() - PlayerManager.PLAYER_RADIUS, PlayerManager.PLAYER_RADIUS * 2, PlayerManager.PLAYER_RADIUS * 2);
+        if (gameMode != State.ENDLESS_MODE) {
+            // endless mode does not have a boss
+            g.fillOval((int) boss.getX() - PlayerManager.PLAYER_RADIUS,
+                    (int) boss.getY() - PlayerManager.PLAYER_RADIUS,
+                    PlayerManager.PLAYER_RADIUS * 2,
+                    PlayerManager.PLAYER_RADIUS * 2);
+        }
         enemyBullets.render(g);
 
         try {
@@ -806,12 +847,20 @@ public class ProjectSeihouGame extends Game {
         g.setColor(Color.lightGray);
         g.drawString("Time limit:", GAME_CANVAS_WIDTH + 14, 20);
         if (withStats) {
-            g.drawString(timeLimit > 0 ? Integer.toString(timeLimit - (int) gameTimer) : "unlimited", GAME_CANVAS_WIDTH + 14, 32);
+            if (gameMode == State.ENDLESS_MODE) {
+                g.drawString("endless", GAME_CANVAS_WIDTH + 14, 32);
+            } else if (timeLimit > 0) {
+                g.drawString(Integer.toString(timeLimit - (int) gameTimer), GAME_CANVAS_WIDTH + 14, 32);
+            } else {
+                g.drawString("unlimited", GAME_CANVAS_WIDTH + 14, 32);
+            }
         }
 
-        g.drawString("Enemy:", GAME_CANVAS_WIDTH + 14, 44);
-        if (withStats) {
-            g.drawString(Integer.toString(boss.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 44);
+        if (gameMode != State.ENDLESS_MODE) {
+            g.drawString("Enemy:", GAME_CANVAS_WIDTH + 14, 44);
+            if (withStats) {
+                g.drawString(Integer.toString(boss.getHp()), GAME_CANVAS_WIDTH + 14 + 50, 44);
+            }
         }
 
         g.drawString("Deny:", GAME_CANVAS_WIDTH + 14, 68);
