@@ -460,13 +460,33 @@ public class ProjectSeihouGame extends Game {
         playerBulletDx.add(dx);
     }
 
+    private final Random generator = new Random();
+    private byte randomCounter = Byte.MAX_VALUE - 30;
+
     private void updateBossBehaviour(final float dt) {
+        bossFireTimer += dt;
         if (gameMode == State.ENDLESS_MODE) {
-            // endless mode has no bosses
+            // Endless mode has no bosses, we hijack this method
+            // to spawn enemies
+            if (enemies.size() < 10 && bossFireTimer >= 0.5) {
+                // Fire timer to prevent a *chunk* of enemies
+                bossFireTimer = 0;
+                enemies.add(new WeakGhost(
+                        generator.nextInt(GAME_CANVAS_WIDTH - 100) + 50,
+                        generator.nextInt(2) * (canvas.getHeight() - 5),
+                        player.getY(), enemyBullets, player));
+                if (generator.nextBoolean()) {
+                    enemyBullets.firePatternRadial(GAME_CANVAS_WIDTH - 50, 60,
+                            (float) Math.PI / 10,
+                            randomCounter += 10,
+                            (float) Math.PI * 2,
+                            5,
+                            generator.nextFloat() * 85);
+                }
+            }
             return;
         }
 
-        bossFireTimer += dt;
         while (bossFireTimer >= patternFrame[patternIdx]) {
             switch ((int) patternFrame[++patternIdx]) {
                 case 0:

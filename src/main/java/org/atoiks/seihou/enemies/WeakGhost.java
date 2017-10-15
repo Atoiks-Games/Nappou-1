@@ -15,7 +15,8 @@ public class WeakGhost extends Enemy {
     public static final float FIRE_RATE = 2;
     private static final Random RND = new Random();
 
-    private final int DIRECTION;
+    private final int DIRECTION_X;
+    private final int DIRECTION_Y;
     private final float Y_LIMIT;
     private final BulletManager BULLET_POOL;
 
@@ -26,7 +27,8 @@ public class WeakGhost extends Enemy {
         this.x = x;
         this.y = y;
         this.Y_LIMIT = limY;
-        this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
+        this.DIRECTION_X = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
+        this.DIRECTION_Y = y < limY ? 1 : -1;
         this.BULLET_POOL = manager;
         this.fireTimer = RND.nextFloat() * FIRE_RATE;
     }
@@ -53,11 +55,12 @@ public class WeakGhost extends Enemy {
         }
 
         final float dv = dt * SPEED;
-        if (DIRECTION != 0 && y > Y_LIMIT) {
-            x += DIRECTION * dv;
+        if (DIRECTION_X != 0
+                && DIRECTION_Y * y > DIRECTION_Y * Y_LIMIT) {
+            x += DIRECTION_X * dv;
             return;
         }
-        y += dv;
+        y += DIRECTION_Y * dv;
     }
 
     @Override
