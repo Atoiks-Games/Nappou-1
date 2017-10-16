@@ -133,7 +133,7 @@ public class ProjectSeihouGame extends Game {
     @Override
     public void init() {
         try {
-            frame.setIcon(ImageIO.read(this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png")));
+            frame.setIcon(this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png"));
 
             loadMusic(0, "title_screen.wav");
             loadMusic(1, "tutorial.wav");
