@@ -369,10 +369,7 @@ public class ProjectSeihouGame extends Game {
         updateEnemyBehaviour(dt);
         updateBulletPos(dt);
         updatePlayerBulletPos(dt);
-        if (upateBullet() || updatePlayerBullet()) {
-            return true;
-        }
-        return false;
+        return upateBullet() || updatePlayerBullet();
     }
 
     private void updateSpawnProtectionTime(float deltaT) {
