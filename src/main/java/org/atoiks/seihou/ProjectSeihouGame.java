@@ -232,10 +232,10 @@ public class ProjectSeihouGame extends Game {
                     ), 125, 200, 100);
 
                     imgName = ImageIO.read(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/name.bmp")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/name.png")
                     );
                     imgInstructions = ImageIO.read(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.bmp")
+                            this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.png")
                     );
                 } catch (IOException ex) {
                     frame.abort(ex.toString());
