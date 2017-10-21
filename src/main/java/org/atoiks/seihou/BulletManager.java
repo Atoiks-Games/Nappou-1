@@ -1,8 +1,10 @@
 package org.atoiks.seihou;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -10,11 +12,9 @@ import java.util.List;
  */
 public class BulletManager {
 
-    private final List<Float> x;
-    private final List<Float> y;
-    private final List<Float> r;
-    private final List<Float> dx;
-    private final List<Float> dy;
+    // packed order: x, y, r, dx, dy
+    private int size;
+    private float[] packed;
 
     private int x1;
     private int y1;
@@ -22,11 +22,9 @@ public class BulletManager {
     private int y2;
 
     public BulletManager(int cap, int x1, int y1, int x2, int y2) {
-        this.x = new ArrayList<>(cap);
-        this.y = new ArrayList<>(cap);
-        this.r = new ArrayList<>(cap);
-        this.dx = new ArrayList<>(cap);
-        this.dy = new ArrayList<>(cap);
+        this.size = 0;
+//        this.packed = new float[cap * 25];
+        this.packed = new float[cap * 5];
 
         this.x1 = x1;
         this.y1 = y1;
@@ -38,20 +36,33 @@ public class BulletManager {
         this(cap, 0, 0, 0, 0);
     }
 
+    public void ensureCapacity(int cap) {
+        final int tcap = cap * 5;
+        if (tcap > this.packed.length) {
+            this.packed = Arrays.copyOf(packed, tcap);
+        }
+    }
+
+    public void trimToSize() {
+        this.packed = Arrays.copyOf(packed, size);
+    }
+
     public void addBullet(float x, float y, float r, float dx, float dy) {
-        this.x.add(x);
-        this.y.add(y);
-        this.r.add(r);
-        this.dx.add(dx);
-        this.dy.add(dy);
+        if (this.size >= this.packed.length) {
+            this.packed = Arrays.copyOf(packed, packed.length + 5 * 16);
+        }
+
+        this.packed[size + 0] = x;
+        this.packed[size + 1] = y;
+        this.packed[size + 2] = r;
+        this.packed[size + 3] = dx;
+        this.packed[size + 4] = dy;
+        size += 5;
     }
 
     public void clear() {
-        x.clear();
-        y.clear();
-        r.clear();
-        dx.clear();
-        dy.clear();
+        Arrays.fill(this.packed, 0, this.size, 0);
+        this.size = 0;
     }
 
     public void changeBox(int x1, int y1, int x2, int y2) {
@@ -62,14 +73,10 @@ public class BulletManager {
     }
 
     public boolean testCollision(float x, float y, float r) {
-        for (int i = 0; i < this.r.size(); ++i) {
-            if (Utils.circlesCollide(this.x.get(i), this.y.get(i), this.r.get(i),
+        for (int i = 0; i < size; i += 5) {
+            if (Utils.circlesCollide(packed[i], packed[i + 1], packed[i + 2],
                     x, y, r)) {
-                this.r.remove(i);
-                this.x.remove(i);
-                this.y.remove(i);
-                this.dx.remove(i);
-                this.dy.remove(i);
+                size -= 5;
                 return true;
             }
         }
@@ -77,33 +84,35 @@ public class BulletManager {
     }
 
     public void updatePosition(final float dt) {
-        for (int i = 0; i < r.size(); ++i) {
-            final float radius = r.get(i);
-            final float newX = x.get(i) + dx.get(i) * dt;
+        int shiftIndex = 0;
+        for (int i = 0; i < size; i += 5) {
+            final float radius = packed[i + 2];
+            final float dx = packed[i + 3];
+            final float dy = packed[i + 4];
+            final float newX = packed[i] + dx * dt;
             if (newX + radius > x1 && newX - radius < x2) {
-                final float newY = y.get(i) + dy.get(i) * dt;
+                final float newY = packed[i + 1] + dy * dt;
                 if (newY + radius > y1 && newY - radius < y2) {
-                    x.set(i, newX);
-                    y.set(i, newY);
-                    continue;
+                    packed[shiftIndex + 0] = newX;
+                    packed[shiftIndex + 1] = newY;
+                    packed[shiftIndex + 2] = radius;
+                    packed[shiftIndex + 3] = dx;
+                    packed[shiftIndex + 4] = dy;
+                    shiftIndex += 5;
                 }
             }
 
-            // Reaching here means bullet went out of bounds, destroy
-            r.remove(i);
-            x.remove(i);
-            y.remove(i);
-            dx.remove(i);
-            dy.remove(i);
-            --i;
+            // Reaching here means bullet went out of bounds
         }
+        // drop
+        size = shiftIndex;
     }
 
     public void render(Graphics g) {
         try {
-            for (int i = 0; i < r.size(); ++i) {
-                final float radius = r.get(i);
-                g.drawOval((int) (x.get(i) - radius), (int) (y.get(i) - radius),
+            for (int i = 0; i < size; i += 5) {
+                final float radius = packed[i + 2];
+                g.drawOval((int) (packed[i] - radius), (int) (packed[i + 1] - radius),
                         (int) (radius * 2), (int) (radius * 2));
             }
         } catch (IndexOutOfBoundsException | NullPointerException ex) {
