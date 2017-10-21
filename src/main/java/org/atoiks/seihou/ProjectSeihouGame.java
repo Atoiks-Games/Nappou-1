@@ -3,6 +3,7 @@ package org.atoiks.seihou;
 import org.atoiks.seihou.enemies.*;
 
 import com.ymcmp.jine.Game;
+import com.ymcmp.jine.Key;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -251,7 +252,7 @@ public class ProjectSeihouGame extends Game {
                     musics[patternFrameIdx + 1].start();
                 }
 
-                if (keyboard.isKeyDown(KeyEvent.VK_ESCAPE)) {
+                if (keyboard.isKeyDown(Key.ESCAPE)) {
                     state.set(State.PAUSE);
                     return;
                 }
@@ -291,13 +292,13 @@ public class ProjectSeihouGame extends Game {
                     ultCounter = 2;
                 }
 
-                if (keyboard.isKeyPressed(KeyEvent.VK_UP)) {
+                if (keyboard.isKeyPressed(Key.UP)) {
                     --initOptSel;
                 }
-                if (keyboard.isKeyPressed(KeyEvent.VK_DOWN)) {
+                if (keyboard.isKeyPressed(Key.DOWN)) {
                     ++initOptSel;
                 }
-                if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyPressed(Key.ENTER)) {
                     switch (initOptSel) {
                         case 0:
                             doAdvance();
@@ -328,7 +329,7 @@ public class ProjectSeihouGame extends Game {
                 if (patternFrameIdx + 1 < musics.length) {
                     musics[patternFrameIdx + 1].stop();
                 }
-                if (keyboard.isKeyDown(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyDown(Key.ENTER)) {
                     if (gameMode == State.STORY_MODE && patternFrameIdx + 1 < musics.length) {
                         // continue from after pause (rely on State.PLAYING
                         // rewinds the entire track)
@@ -337,7 +338,7 @@ public class ProjectSeihouGame extends Game {
                     state.set(State.PLAYING);
                     return;
                 }
-                if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
+                if (keyboard.isKeyDown(Key.Q)) {
                     state.set(State.INIT);
                     return;
                 }
@@ -349,11 +350,11 @@ public class ProjectSeihouGame extends Game {
                 }
             // FALLTHROUGH
             case State.HELP:
-                if (keyboard.isKeyPressed(KeyEvent.VK_ENTER)) {
+                if (keyboard.isKeyPressed(Key.ENTER)) {
                     state.set(State.INIT);
                     return;
                 }
-                if (keyboard.isKeyDown(KeyEvent.VK_Q)) {
+                if (keyboard.isKeyDown(Key.Q)) {
                     frame.abort();
                 }
                 break;
@@ -419,7 +420,7 @@ public class ProjectSeihouGame extends Game {
 
     private void procUserFire(final float dt) {
         if ((playerFireTimer += dt) >= PLAYER_BULLET_RATE) {
-            if (keyboard.isKeyDown(KeyEvent.VK_Z)) {
+            if (keyboard.isKeyDown(Key.Z)) {
                 playerFireTimer = 0f;
 
                 if ((atkType & MASK_BULLET_DFWD) == MASK_BULLET_DFWD) {
@@ -435,7 +436,7 @@ public class ProjectSeihouGame extends Game {
             }
         }
         if ((ultCooldownTimer += dt) >= PLAYER_BULLET_RATE) {
-            if (keyboard.isKeyDown(KeyEvent.VK_X)) {
+            if (keyboard.isKeyDown(Key.X)) {
                 if (ultCounter > 0) {
                     ultCooldownTimer = 0;
                     --ultCounter;
@@ -659,24 +660,24 @@ public class ProjectSeihouGame extends Game {
     }
 
     private void procPlayerMovement(final float dt) {
-        final float dv = (keyboard.isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
+        final float dv = (keyboard.isKeyDown(Key.SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
 
-        if (keyboard.isKeyDown(KeyEvent.VK_RIGHT)) {
+        if (keyboard.isKeyDown(Key.RIGHT)) {
             if (player.getX() + dv < GAME_CANVAS_WIDTH) {
                 player.translateX(dv);
             }
         }
-        if (keyboard.isKeyDown(KeyEvent.VK_LEFT)) {
+        if (keyboard.isKeyDown(Key.LEFT)) {
             if (player.getX() > dv) {
                 player.translateX(-dv);
             }
         }
-        if (keyboard.isKeyDown(KeyEvent.VK_DOWN)) {
+        if (keyboard.isKeyDown(Key.DOWN)) {
             if (player.getY() + dv < canvas.getHeight()) {
                 player.translateY(dv);
             }
         }
-        if (keyboard.isKeyDown(KeyEvent.VK_UP)) {
+        if (keyboard.isKeyDown(Key.UP)) {
             if (player.getY() > dv) {
                 player.translateY(-dv);
             }
