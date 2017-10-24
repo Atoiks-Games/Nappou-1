@@ -2,6 +2,7 @@ package org.atoiks.seihou.enemies;
 
 import java.awt.Color;
 import java.awt.Graphics;
+
 import org.atoiks.seihou.PlayerManager;
 
 /**

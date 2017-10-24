@@ -1,11 +1,11 @@
 package org.atoiks.seihou.enemies;
 
+import org.atoiks.seihou.PlayerManager;
 import org.atoiks.seihou.BulletManager;
 import org.atoiks.seihou.ProjectSeihouGame;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import org.atoiks.seihou.PlayerManager;
 
 public class SpiralGhost extends Enemy {
 
