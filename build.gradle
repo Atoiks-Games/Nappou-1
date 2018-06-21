@@ -23,3 +23,22 @@ configurations.all {
 dependencies {
     compile 'com.github.plankp:Jine:-SNAPSHOT'
 }
+
+task copyLicense {
+    outputs.file new File("$buildDir/LICENSE")
+    outputs.file new File("$buildDir/README.md")
+    doLast {
+        copy {
+            from "LICENSE"
+            into "$buildDir"
+        }
+        copy {
+            from "README.md"
+            into "$buildDir"
+        }
+    }
+}
+
+applicationDistribution.from(copyLicense) {
+    into ""
+}
