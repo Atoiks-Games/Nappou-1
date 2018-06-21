@@ -2,7 +2,7 @@ package org.atoiks.seihou.enemies;
 
 import org.atoiks.seihou.PlayerManager;
 import org.atoiks.seihou.BulletManager;
-import org.atoiks.seihou.ProjectSeihouGame;
+import org.atoiks.seihou.NappouGame;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,18 +24,18 @@ public class RadialGhost extends Enemy {
         super(3f, 2, 2, player);
         this.x = x;
         this.y = y;
-        this.DIRECTION = (int) Math.signum(ProjectSeihouGame.GAME_CANVAS_WIDTH / 2 - x);
+        this.DIRECTION = (int) Math.signum(NappouGame.GAME_CANVAS_WIDTH / 2 - x);
         this.BULLET_POOL = manager;
         this.fireTimer = RND.nextFloat() * FIRE_RATE;
     }
 
     @Override
     public void onUpdate(float dt) {
-        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > ProjectSeihouGame.GAME_CANVAS_WIDTH) {
+        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > NappouGame.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;
         }
-        if (y > ProjectSeihouGame.FRAME_HEIGHT) {
+        if (y > NappouGame.FRAME_HEIGHT) {
             this.destroy();
             return;
         }

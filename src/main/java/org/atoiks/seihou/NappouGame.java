@@ -30,7 +30,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  * @author YTENG
  */
-public class ProjectSeihouGame extends Game {
+public class NappouGame extends Game {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -148,7 +148,7 @@ public class ProjectSeihouGame extends Game {
             return;
         }
 
-        frame.setTitle("Project Seihou");
+        frame.setTitle("Atoiks Games - Nappou 1");
         frame.setSize(CANVAS_WIDTH, FRAME_HEIGHT);
         frame.setResizable(false);
         frame.moveToCenter();
