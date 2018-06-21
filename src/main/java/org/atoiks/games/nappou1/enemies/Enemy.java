@@ -1,8 +1,8 @@
-package org.atoiks.seihou.enemies;
+package org.atoiks.games.nappou1.enemies;
 
-import org.atoiks.seihou.GameComponent;
-import org.atoiks.seihou.PlayerManager;
-import org.atoiks.seihou.Utils;
+import org.atoiks.games.nappou1.GameComponent;
+import org.atoiks.games.nappou1.PlayerManager;
+import org.atoiks.games.nappou1.Utils;
 
 /**
  *

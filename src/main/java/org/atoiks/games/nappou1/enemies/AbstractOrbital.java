@@ -1,9 +1,9 @@
-package org.atoiks.seihou.enemies;
+package org.atoiks.games.nappou1.enemies;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
-import org.atoiks.seihou.PlayerManager;
+import org.atoiks.games.nappou1.PlayerManager;
 
 /**
  *

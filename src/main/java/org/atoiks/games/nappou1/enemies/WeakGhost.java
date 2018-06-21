@@ -1,8 +1,8 @@
-package org.atoiks.seihou.enemies;
+package org.atoiks.games.nappou1.enemies;
 
-import org.atoiks.seihou.BulletManager;
-import org.atoiks.seihou.PlayerManager;
-import org.atoiks.seihou.NappouGame;
+import org.atoiks.games.nappou1.BulletManager;
+import org.atoiks.games.nappou1.PlayerManager;
+import org.atoiks.games.nappou1.NappouGame;
 
 import java.awt.Color;
 import java.awt.Graphics;

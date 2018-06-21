@@ -1,4 +1,4 @@
-package org.atoiks.seihou;
+package org.atoiks.games.nappou1;
 
 import java.io.BufferedReader;
 import java.io.IOException;

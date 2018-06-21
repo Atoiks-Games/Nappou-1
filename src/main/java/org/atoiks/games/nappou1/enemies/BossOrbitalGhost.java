@@ -1,6 +1,6 @@
-package org.atoiks.seihou.enemies;
+package org.atoiks.games.nappou1.enemies;
 
-import org.atoiks.seihou.PlayerManager;
+import org.atoiks.games.nappou1.PlayerManager;
 
 public class BossOrbitalGhost extends AbstractOrbital {
 

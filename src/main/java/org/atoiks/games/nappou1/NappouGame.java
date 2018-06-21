@@ -1,6 +1,6 @@
-package org.atoiks.seihou;
+package org.atoiks.games.nappou1;
 
-import org.atoiks.seihou.enemies.*;
+import org.atoiks.games.nappou1.enemies.*;
 
 import com.ymcmp.jine.Game;
 import com.ymcmp.jine.Key;
@@ -133,7 +133,7 @@ public class NappouGame extends Game {
     @Override
     public void init() {
         try {
-            frame.setIcon(this.getClass().getResourceAsStream("/org/atoiks/seihou/icon.png"));
+            frame.setIcon(this.getClass().getResourceAsStream("/icon.png"));
 
             loadMusic(0, "title_screen.wav");
             loadMusic(1, "tutorial.wav");
@@ -162,7 +162,7 @@ public class NappouGame extends Game {
     private void loadMusic(int slot, String name) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(
                 new BufferedInputStream(
-                        this.getClass().getResourceAsStream("/org/atoiks/seihou/music/" + name)
+                        this.getClass().getResourceAsStream("/music/" + name)
                 )
         )) {
             Clip clip = AudioSystem.getClip();
@@ -210,32 +210,32 @@ public class NappouGame extends Game {
             case State.LOADING:
                 try {
                     BULLET_PATTERNS[0] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/0.spa")
+                            this.getClass().getResourceAsStream("/patterns/0.spa")
                     ), 30, 0);
                     BULLET_PATTERNS[1] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/1.spa")
+                            this.getClass().getResourceAsStream("/patterns/1.spa")
                     ), 45, 200, 60);
                     BULLET_PATTERNS[2] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/2.spa")
+                            this.getClass().getResourceAsStream("/patterns/2.spa")
                     ), 45, 180, 60);
                     BULLET_PATTERNS[3] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/3.spa")
+                            this.getClass().getResourceAsStream("/patterns/3.spa")
                     ), 45, 200, 80);
                     BULLET_PATTERNS[4] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/4.spa")
+                            this.getClass().getResourceAsStream("/patterns/4.spa")
                     ), 45, 200, 80);
                     BULLET_PATTERNS[5] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/5.spa")
+                            this.getClass().getResourceAsStream("/patterns/5.spa")
                     ), 150, 350, 115);
                     BULLET_PATTERNS[6] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/patterns/6.spa")
+                            this.getClass().getResourceAsStream("/patterns/6.spa")
                     ), 125, 200, 100);
 
                     imgName = ImageIO.read(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/name.png")
+                            this.getClass().getResourceAsStream("/name.png")
                     );
                     imgInstructions = ImageIO.read(
-                            this.getClass().getResourceAsStream("/org/atoiks/seihou/instructions.png")
+                            this.getClass().getResourceAsStream("/instructions.png")
                     );
                 } catch (IOException ex) {
                     frame.abort(ex.toString());

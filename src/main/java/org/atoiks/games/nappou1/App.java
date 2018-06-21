@@ -1,4 +1,4 @@
-package org.atoiks.seihou;
+package org.atoiks.games.nappou1;
 
 import com.ymcmp.jine.Game;
 import com.ymcmp.jine.GameRunner;
