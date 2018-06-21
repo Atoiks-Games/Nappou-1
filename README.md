@@ -1,4 +1,4 @@
-# Project Seihou [![Build Status](https://travis-ci.org/Atoiks-Games/Project-Seihou.svg?branch=master)](https://travis-ci.org/Atoiks-Games/Project-Seihou)
+# Project Nappou
 
 Bullet-hell game in java. Name is inspired from Touhou Project.
 
@@ -14,7 +14,7 @@ Requires jdk 8 or above
 
 1. Extract the zip / tar / whatever it came in
 2. Open the `bin` folder
-3. Run `ProjectSeihou` (one of them is for Windows, the other is for Nixes)
+3. Run `ProjectNappou` (one of them is for Windows, the other is for Nixes)
 
 # How to play
 
