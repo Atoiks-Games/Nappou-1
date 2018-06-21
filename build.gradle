@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 mainClassName = 'org.atoiks.seihou.App'
