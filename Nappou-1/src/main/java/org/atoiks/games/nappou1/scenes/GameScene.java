@@ -16,12 +16,19 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.atoiks.games.nappou1;
+package org.atoiks.games.nappou1.scenes;
 
 import org.atoiks.games.framework2d.Scene;
 import org.atoiks.games.framework2d.IGraphics;
 
 import org.atoiks.games.nappou1.App;
+import org.atoiks.games.nappou1.State;
+import org.atoiks.games.nappou1.Utils;
+import org.atoiks.games.nappou1.BossData;
+import org.atoiks.games.nappou1.GameComponent;
+import org.atoiks.games.nappou1.PlayerManager;
+import org.atoiks.games.nappou1.BulletManager;
+
 import org.atoiks.games.nappou1.enemies.*;
 
 import java.awt.Color;
@@ -40,7 +47,7 @@ import javax.sound.sampled.Clip;
  *
  * @author YTENG
  */
-public class NappouGame extends Scene {
+public class GameScene extends Scene {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -543,7 +550,7 @@ public class NappouGame extends Scene {
         for (int i = 0; i < enemies.size(); ++i) {
             final GameComponent gcmp = enemies.get(i);
             gcmp.update(dt);
-            if (gcmp.aliveFlag) {
+            if (gcmp.isAlive()) {
                 continue;
             }
             if (player.getHp() < 1) {

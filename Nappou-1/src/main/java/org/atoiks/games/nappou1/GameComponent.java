@@ -26,7 +26,7 @@ import org.atoiks.games.framework2d.IGraphics;
  */
 public abstract class GameComponent {
 
-    boolean aliveFlag = true;
+    protected boolean aliveFlag = true;
 
     public abstract void update(float dt);
 
@@ -34,5 +34,9 @@ public abstract class GameComponent {
 
     public final void destroy() {
         aliveFlag = false;
+    }
+
+    public boolean isAlive() {
+        return aliveFlag;
     }
 }
