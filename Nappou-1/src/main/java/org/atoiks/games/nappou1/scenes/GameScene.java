@@ -251,6 +251,7 @@ public class GameScene extends Scene {
                     musics[0].start();
 
                     player.resetScore();
+                    protectionFlag = false;
                     // Modify this line to test a particular level directly
                     patternFrameIdx = 0;
                     atkType = MASK_BULLET_MIN;
