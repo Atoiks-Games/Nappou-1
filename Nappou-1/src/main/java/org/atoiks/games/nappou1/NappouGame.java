@@ -150,19 +150,6 @@ public class NappouGame extends Scene {
 
     @Override
     public void enter(int from) {
-        try {
-            loadMusic(0, "title_screen.wav");
-            loadMusic(1, "tutorial.wav");
-            loadMusic(2, "unnamed.wav");
-            loadMusic(3, "ding_around.wav");
-            loadMusic(4, "13s_ring.wav");
-            loadMusic(5, "Hymn-Of-The-Arena.wav");
-            loadMusic(6, "ding_around_rev.wav");
-            loadMusic(7, "0418.wav");
-        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
-            // Ignore
-        }
-
         enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
 
         reset();
@@ -248,6 +235,20 @@ public class NappouGame extends Scene {
                 } catch (IOException ex) {
                     return false;
                 }
+
+                try {
+                    loadMusic(0, "title_screen.wav");
+                    loadMusic(1, "tutorial.wav");
+                    loadMusic(2, "unnamed.wav");
+                    loadMusic(3, "ding_around.wav");
+                    loadMusic(4, "13s_ring.wav");
+                    loadMusic(5, "Hymn-Of-The-Arena.wav");
+                    loadMusic(6, "ding_around_rev.wav");
+                    loadMusic(7, "0418.wav");
+                } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
+                    return false;
+                }
+
                 state.set(State.INIT);
                 break;
             case State.PLAYING: {
@@ -724,6 +725,8 @@ public class NappouGame extends Scene {
     public void render(IGraphics g) {
         g.setClearColor(Color.black);
         g.clearGraphics();
+        g.setFont(App.SANS_FONT);
+
         switch (state.get()) {
             case State.LOADING:
                 g.setColor(Color.gray);

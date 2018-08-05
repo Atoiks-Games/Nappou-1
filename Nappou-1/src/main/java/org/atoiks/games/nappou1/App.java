@@ -18,10 +18,30 @@
 
 package org.atoiks.games.nappou1;
 
+import java.io.IOException;
+
+import java.awt.Font;
+import java.awt.FontFormatException;
+
 import org.atoiks.games.framework2d.FrameInfo;
 import org.atoiks.games.framework2d.swing.Frame;
 
 public class App {
+
+    public static final Font SANS_FONT;
+
+    static {
+        Font local = null;
+        try {
+            local = Font.createFont(Font.PLAIN, App.class.getResourceAsStream("/Being_Human.ttf"));
+        } catch (IOException | FontFormatException ex) {
+            // Fallback to using a generic SansSerif font
+            local = new Font("SansSerif", Font.PLAIN, 16);
+        } finally {
+            // SANS_FONT is initialized as size 13 plain
+            SANS_FONT = local.deriveFont(Font.PLAIN, 13f);
+        }
+    }
 
     public static final int WIDTH = 500;
     public static final int HEIGHT = 350;
