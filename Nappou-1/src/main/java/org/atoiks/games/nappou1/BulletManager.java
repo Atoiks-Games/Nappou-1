@@ -18,9 +18,9 @@
 
 package org.atoiks.games.nappou1;
 
-import java.awt.Graphics;
-
 import java.util.Arrays;
+
+import org.atoiks.games.framework2d.IGraphics;
 
 /**
  *
@@ -124,12 +124,11 @@ public class BulletManager {
         size = shiftIndex;
     }
 
-    public void render(Graphics g) {
+    public void render(IGraphics g) {
         try {
             for (int i = 0; i < size; i += 5) {
                 final float radius = packed[i + 2];
-                g.drawOval((int) (packed[i] - radius), (int) (packed[i + 1] - radius),
-                        (int) (radius * 2), (int) (radius * 2));
+                g.drawCircle((int) packed[i], (int) packed[i + 1], (int) radius);
             }
         } catch (IndexOutOfBoundsException | NullPointerException ex) {
         }

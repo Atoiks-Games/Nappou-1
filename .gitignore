@@ -1,8 +1,8 @@
-build/
+# Created by https://www.gitignore.io/api/gradle
+
+### Gradle ###
 .gradle
-*.*~
-*~
-*.log
+**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -15,4 +15,11 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
-/.nb-gradle/
+
+# End of https://www.gitignore.io/api/gradle
+
+.settings/
+
+*~
+*.swp
+.DS_STORE

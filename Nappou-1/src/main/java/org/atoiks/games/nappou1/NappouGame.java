@@ -18,13 +18,13 @@
 
 package org.atoiks.games.nappou1;
 
+import org.atoiks.games.framework2d.Scene;
+import org.atoiks.games.framework2d.IGraphics;
+
 import org.atoiks.games.nappou1.enemies.*;
 
-import com.ymcmp.jine.Game;
-import com.ymcmp.jine.Key;
-
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 import java.io.BufferedInputStream;
@@ -48,7 +48,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  * @author YTENG
  */
-public class NappouGame extends Game {
+public class NappouGame extends Scene {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -145,14 +145,12 @@ public class NappouGame extends Game {
     public static final int INFO_CANVAS_WIDTH = 120;
     public static final int CANVAS_WIDTH = GAME_CANVAS_WIDTH + INFO_CANVAS_WIDTH;
 
-    // This is not the same as canvas.getHeight() (slightly bigger)
+    // This is not the same as FRAME_HEIGHT (slightly bigger)
     public static final int FRAME_HEIGHT = 350;
 
     @Override
-    public void init() {
+    public void enter(int from) {
         try {
-            frame.setIcon(this.getClass().getResourceAsStream("/icon.png"));
-
             loadMusic(0, "title_screen.wav");
             loadMusic(1, "tutorial.wav");
             loadMusic(2, "unnamed.wav");
@@ -162,17 +160,10 @@ public class NappouGame extends Game {
             loadMusic(6, "ding_around_rev.wav");
             loadMusic(7, "0418.wav");
         } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
-            frame.abort(ex.toString());
-            return;
+            // Ignore
         }
 
-        frame.setTitle("Atoiks Games - Nappou 1");
-        frame.setSize(CANVAS_WIDTH, FRAME_HEIGHT);
-        frame.setResizable(false);
-        frame.moveToCenter();
-        frame.setVisible(true);
-
-        enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
+        enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
 
         reset();
     }
@@ -192,7 +183,7 @@ public class NappouGame extends Game {
     }
 
     private void reset() {
-        player.setPosition(GAME_CANVAS_WIDTH / 2f, canvas.getHeight() - 20);
+        player.setPosition(GAME_CANVAS_WIDTH / 2f, FRAME_HEIGHT - 20);
         player.resetHp();
         player.deltaHp(5);
 
@@ -222,8 +213,7 @@ public class NappouGame extends Game {
     }
 
     @Override
-    public void update(double deltaT) {
-        final float dt = (float) deltaT;
+    public boolean update(float dt) {
         switch (state.get()) {
             case State.LOADING:
                 try {
@@ -256,8 +246,7 @@ public class NappouGame extends Game {
                             this.getClass().getResourceAsStream("/instructions.png")
                     );
                 } catch (IOException ex) {
-                    frame.abort(ex.toString());
-                    return;
+                    return false;
                 }
                 state.set(State.INIT);
                 break;
@@ -269,26 +258,26 @@ public class NappouGame extends Game {
                     musics[patternFrameIdx + 1].start();
                 }
 
-                if (keyboard.isKeyDown(Key.ESCAPE)) {
+                if (scene.keyboard().isKeyDown(KeyEvent.VK_ESCAPE)) {
                     state.set(State.PAUSE);
-                    return;
+                    return true;
                 }
 
                 procPlayerMovement(dt);
                 procUserFire(dt);
                 updateSpawnProtectionTime(dt);
                 if (procGenericUpdate(dt)) {
-                    return;
+                    return true;
                 }
                 break;
             }
             case State.HIT_ANIM: {
                 if (procGenericUpdate(dt)) {
-                    return;
+                    return true;
                 }
 
                 if ((hitAnimTimer += dt) < 0.25) {
-                    return;
+                    return true;
                 }
 
                 // reduce attack type to the level before
@@ -309,33 +298,32 @@ public class NappouGame extends Game {
                     ultCounter = 2;
                 }
 
-                if (keyboard.isKeyPressed(Key.UP)) {
+                if (scene.keyboard().isKeyPressed(KeyEvent.VK_UP)) {
                     --initOptSel;
                 }
-                if (keyboard.isKeyPressed(Key.DOWN)) {
+                if (scene.keyboard().isKeyPressed(KeyEvent.VK_DOWN)) {
                     ++initOptSel;
                 }
-                if (keyboard.isKeyPressed(Key.ENTER)) {
+                if (scene.keyboard().isKeyPressed(KeyEvent.VK_ENTER)) {
                     switch (initOptSel) {
                         case 0:
                             doAdvance();
                             musics[0].stop();
                             gameMode = State.STORY_MODE;
                             state.set(State.PLAYING);
-                            return;
+                            return true;
                         case 1:
                             doAdvance();
                             musics[0].stop();
                             gameMode = State.ENDLESS_MODE;
                             state.set(State.PLAYING);
-                            return;
+                            return true;
                         case 2:
                             state.set(State.HELP);
-                            return;
+                            return true;
                         case 3:
                             musics[0].stop();
-                            frame.abort();
-                            return;
+                            return false;
                     }
                 }
                 break;
@@ -346,18 +334,18 @@ public class NappouGame extends Game {
                 if (patternFrameIdx + 1 < musics.length) {
                     musics[patternFrameIdx + 1].stop();
                 }
-                if (keyboard.isKeyDown(Key.ENTER)) {
+                if (scene.keyboard().isKeyDown(KeyEvent.VK_ENTER)) {
                     if (gameMode == State.STORY_MODE && patternFrameIdx + 1 < musics.length) {
                         // continue from after pause (rely on State.PLAYING
                         // rewinds the entire track)
                         musics[patternFrameIdx + 1].start();
                     }
                     state.set(State.PLAYING);
-                    return;
+                    return true;
                 }
-                if (keyboard.isKeyDown(Key.Q)) {
+                if (scene.keyboard().isKeyDown(KeyEvent.VK_Q)) {
                     state.set(State.INIT);
-                    return;
+                    return true;
                 }
                 break;
             case State.LOSE:
@@ -367,16 +355,17 @@ public class NappouGame extends Game {
                 }
             // FALLTHROUGH
             case State.HELP:
-                if (keyboard.isKeyPressed(Key.ENTER)) {
+                if (scene.keyboard().isKeyPressed(KeyEvent.VK_ENTER)) {
                     state.set(State.INIT);
-                    return;
+                    return true;
                 }
-                if (keyboard.isKeyDown(Key.Q)) {
-                    frame.abort();
+                if (scene.keyboard().isKeyDown(KeyEvent.VK_Q)) {
+                    return false;
                 }
                 break;
             default:
         }
+        return true;
     }
 
     private boolean procGenericUpdate(final float dt) {
@@ -437,7 +426,7 @@ public class NappouGame extends Game {
 
     private void procUserFire(final float dt) {
         if ((playerFireTimer += dt) >= PLAYER_BULLET_RATE) {
-            if (keyboard.isKeyDown(Key.Z)) {
+            if (scene.keyboard().isKeyDown(KeyEvent.VK_Z)) {
                 playerFireTimer = 0f;
 
                 if ((atkType & MASK_BULLET_DFWD) == MASK_BULLET_DFWD) {
@@ -453,7 +442,7 @@ public class NappouGame extends Game {
             }
         }
         if ((ultCooldownTimer += dt) >= PLAYER_BULLET_RATE) {
-            if (keyboard.isKeyDown(Key.X)) {
+            if (scene.keyboard().isKeyDown(KeyEvent.VK_X)) {
                 if (ultCounter > 0) {
                     ultCooldownTimer = 0;
                     --ultCounter;
@@ -488,7 +477,7 @@ public class NappouGame extends Game {
                 bossFireTimer = 0;
                 enemies.add(new WeakGhost(
                         generator.nextInt(GAME_CANVAS_WIDTH - 100) + 50,
-                        generator.nextInt(2) * (canvas.getHeight() - 5),
+                        generator.nextInt(2) * (FRAME_HEIGHT - 5),
                         player.getY(), enemyBullets, player));
                 if (generator.nextBoolean()) {
                     enemyBullets.firePatternRadial(GAME_CANVAS_WIDTH - 50, 60,
@@ -677,24 +666,24 @@ public class NappouGame extends Game {
     }
 
     private void procPlayerMovement(final float dt) {
-        final float dv = (keyboard.isKeyDown(Key.SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
+        final float dv = (scene.keyboard().isKeyDown(KeyEvent.VK_SHIFT) ? PLAYER_SLOW_V : PLAYER_FAST_V) * dt;
 
-        if (keyboard.isKeyDown(Key.RIGHT)) {
+        if (scene.keyboard().isKeyDown(KeyEvent.VK_RIGHT)) {
             if (player.getX() + dv < GAME_CANVAS_WIDTH) {
                 player.translateX(dv);
             }
         }
-        if (keyboard.isKeyDown(Key.LEFT)) {
+        if (scene.keyboard().isKeyDown(KeyEvent.VK_LEFT)) {
             if (player.getX() > dv) {
                 player.translateX(-dv);
             }
         }
-        if (keyboard.isKeyDown(Key.DOWN)) {
-            if (player.getY() + dv < canvas.getHeight()) {
+        if (scene.keyboard().isKeyDown(KeyEvent.VK_DOWN)) {
+            if (player.getY() + dv < FRAME_HEIGHT) {
                 player.translateY(dv);
             }
         }
-        if (keyboard.isKeyDown(Key.UP)) {
+        if (scene.keyboard().isKeyDown(KeyEvent.VK_UP)) {
             if (player.getY() > dv) {
                 player.translateY(-dv);
             }
@@ -732,9 +721,9 @@ public class NappouGame extends Game {
     }
 
     @Override
-    public void render(Graphics g) {
-        g.setColor(Color.black);
-        g.fillRect(0, 0, CANVAS_WIDTH, canvas.getHeight());
+    public void render(IGraphics g) {
+        g.setClearColor(Color.black);
+        g.clearGraphics();
         switch (state.get()) {
             case State.LOADING:
                 g.setColor(Color.gray);
@@ -783,7 +772,7 @@ public class NappouGame extends Game {
                 drawGame(g, true);
                 drawInfo(g, true);
                 g.setColor(LIGHT_GRAY_SHADER);
-                g.fillRect(0, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
+                g.fillRect(0, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
                 g.setColor(Color.cyan);
                 g.drawString("PAUSED", GAME_CANVAS_WIDTH / 2 - 24, 60);
                 g.drawString("(ENTER OR Q)", GAME_CANVAS_WIDTH / 2 - 40, 240);
@@ -819,13 +808,13 @@ public class NappouGame extends Game {
         }
     }
 
-    private void drawGame(Graphics g, boolean drawPlayer) {
+    private void drawGame(IGraphics g, boolean drawPlayer) {
         g.setColor(Color.red);
         try {
             for (int i = 0; i < powupY.size(); ++i) {
                 final float x = powupX.get(i);
                 final float y = powupY.get(i);
-                g.fillRect((int) x - POWUP_SIZE / 2, (int) y - POWUP_SIZE / 2, POWUP_SIZE, POWUP_SIZE);
+                g.fillRect(x - POWUP_SIZE / 2, y - POWUP_SIZE / 2, x + POWUP_SIZE / 2, y + POWUP_SIZE / 2);
             }
         } catch (IndexOutOfBoundsException ex) {
         }
@@ -833,10 +822,7 @@ public class NappouGame extends Game {
         g.setColor(Color.white);
         try {
             for (int i = 0; i < playerBulletX.size(); ++i) {
-                g.drawOval((int) (playerBulletX.get(i) - PLAYER_BULLET_R),
-                        (int) (playerBulletY.get(i) - PLAYER_BULLET_R),
-                        PLAYER_BULLET_R * 2,
-                        PLAYER_BULLET_R * 2);
+                g.fillCircle(playerBulletX.get(i).intValue(), playerBulletY.get(i).intValue(), PLAYER_BULLET_R);
             }
         } catch (IndexOutOfBoundsException ex) {
         }
@@ -845,19 +831,13 @@ public class NappouGame extends Game {
             if (protectionFlag) {
                 g.setColor(Color.green);
             }
-            g.fillOval((int) player.getX() - PlayerManager.PLAYER_RADIUS,
-                    (int) player.getY() - PlayerManager.PLAYER_RADIUS,
-                    PlayerManager.PLAYER_RADIUS * 2,
-                    PlayerManager.PLAYER_RADIUS * 2);
+            g.fillCircle((int) player.getX(), (int) player.getY(), PlayerManager.PLAYER_RADIUS);
         }
 
         g.setColor(Color.yellow);
         if (gameMode != State.ENDLESS_MODE) {
             // endless mode does not have a boss
-            g.fillOval((int) boss.getX() - PlayerManager.PLAYER_RADIUS,
-                    (int) boss.getY() - PlayerManager.PLAYER_RADIUS,
-                    PlayerManager.PLAYER_RADIUS * 2,
-                    PlayerManager.PLAYER_RADIUS * 2);
+            g.fillCircle((int) boss.getX(), (int) boss.getY(), PlayerManager.PLAYER_RADIUS);
         }
         enemyBullets.render(g);
 
@@ -869,12 +849,12 @@ public class NappouGame extends Game {
         }
     }
 
-    public void drawInfo(Graphics g, boolean withStats) {
+    public void drawInfo(IGraphics g, boolean withStats) {
         // Overlay (side info bar)
         g.setColor(Color.black);
-        g.fillRect(GAME_CANVAS_WIDTH, 0, CANVAS_WIDTH, canvas.getHeight());
+        g.fillRect(GAME_CANVAS_WIDTH, 0, CANVAS_WIDTH, FRAME_HEIGHT);
         g.setColor(Color.red);
-        g.drawLine(GAME_CANVAS_WIDTH, 0, GAME_CANVAS_WIDTH, canvas.getHeight());
+        g.drawLine(GAME_CANVAS_WIDTH, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
 
         g.setColor(Color.lightGray);
         g.drawString("Time limit:", GAME_CANVAS_WIDTH + 14, 20);
@@ -912,11 +892,16 @@ public class NappouGame extends Game {
     }
 
     @Override
-    public void destroy() {
+    public void leave() {
         for (int i = 0; i < musics.length; ++i) {
             if (musics[i] != null) {
                 musics[i].close();
             }
         }
+    }
+
+    @Override
+    public void resize(int w, int h) {
+        // Screen is fixed
     }
 }

@@ -1,1 +1,1 @@
-rootProject.name = 'Nappou-1'
+include ':Nappou-1', 'Framework2D'
