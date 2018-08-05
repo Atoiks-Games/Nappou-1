@@ -21,6 +21,7 @@ package org.atoiks.games.nappou1;
 import org.atoiks.games.framework2d.Scene;
 import org.atoiks.games.framework2d.IGraphics;
 
+import org.atoiks.games.nappou1.App;
 import org.atoiks.games.nappou1.enemies.*;
 
 import java.awt.Color;
@@ -143,10 +144,9 @@ public class NappouGame extends Scene {
 
     public static final int GAME_CANVAS_WIDTH = 380;
     public static final int INFO_CANVAS_WIDTH = 120;
-    public static final int CANVAS_WIDTH = GAME_CANVAS_WIDTH + INFO_CANVAS_WIDTH;
+    public static final int CANVAS_WIDTH = App.WIDTH;
 
-    // This is not the same as FRAME_HEIGHT (slightly bigger)
-    public static final int FRAME_HEIGHT = 350;
+    public static final int FRAME_HEIGHT = App.HEIGHT;
 
     @Override
     public void enter(int from) {
