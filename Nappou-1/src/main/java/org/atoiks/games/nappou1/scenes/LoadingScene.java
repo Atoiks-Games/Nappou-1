@@ -94,7 +94,6 @@ public class LoadingScene extends Scene {
                         loadBulletPattern("6.spa");
 
                         loadImage("name.png");
-                        loadImage("instructions.png");
 
                         loadMusic("title_screen.wav");
                         loadMusic("tutorial.wav");

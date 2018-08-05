@@ -121,7 +121,6 @@ public class GameScene extends Scene {
     private int initOptSel = 0;
 
     private Image imgName;
-    private Image imgInstructions;
 
     private final BulletManager enemyBullets = new BulletManager(64);
 
@@ -160,7 +159,6 @@ public class GameScene extends Scene {
             musics[7] = (Clip) scene.resources().get("0418.wav");
 
             imgName = (Image) scene.resources().get("name.png");
-            imgInstructions = (Image) scene.resources().get("instructions.png");
 
             BULLET_PATTERNS[0] = new BossData((float[]) scene.resources().get("0.spa"), 30, 0);
             BULLET_PATTERNS[1] = new BossData((float[]) scene.resources().get("1.spa"), 45, 200, 60);
@@ -279,7 +277,7 @@ public class GameScene extends Scene {
                             state.set(State.PLAYING);
                             return true;
                         case 2:
-                            state.set(State.HELP);
+                            scene.gotoNextScene();
                             return true;
                         case 3:
                             musics[0].stop();
@@ -313,8 +311,6 @@ public class GameScene extends Scene {
                 if (patternFrameIdx + 1 < musics.length) {
                     musics[patternFrameIdx + 1].stop();
                 }
-            // FALLTHROUGH
-            case State.HELP:
                 if (scene.keyboard().isKeyPressed(KeyEvent.VK_ENTER)) {
                     state.set(State.INIT);
                     return true;
@@ -756,12 +752,6 @@ public class GameScene extends Scene {
                 g.drawString("CONTINUE", GAME_CANVAS_WIDTH / 2 - 28, 240);
                 g.drawLine(GAME_CANVAS_WIDTH / 2 - 10, 240, GAME_CANVAS_WIDTH / 2 + 10, 240);
                 break;
-            case State.HELP:
-                g.setColor(Color.cyan);
-                g.drawImage(imgInstructions, 0, 0, null);
-                g.drawString("BACK", CANVAS_WIDTH / 2 - 12, 240);
-                g.drawLine(CANVAS_WIDTH / 2 - 10, 240, CANVAS_WIDTH / 2 + 10, 240);
-                break;
             default:
         }
     }
@@ -847,15 +837,6 @@ public class GameScene extends Scene {
 
         g.drawString("Score:", GAME_CANVAS_WIDTH + 14, 114);
         g.drawString(Long.toString(player.getScore() * 20L), GAME_CANVAS_WIDTH + 14, 126);
-    }
-
-    @Override
-    public void leave() {
-        for (int i = 0; i < musics.length; ++i) {
-            if (musics[i] != null) {
-                musics[i].close();
-            }
-        }
     }
 
     @Override
