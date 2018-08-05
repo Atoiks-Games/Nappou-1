@@ -26,6 +26,8 @@ import java.awt.FontFormatException;
 import org.atoiks.games.framework2d.FrameInfo;
 import org.atoiks.games.framework2d.swing.Frame;
 
+import org.atoiks.games.nappou1.scenes.*;
+
 public class App {
 
     public static final Font SANS_FONT;
@@ -54,7 +56,7 @@ public class App {
                 .setTitle("Atoiks Games - Nappou 1")
                 .setResizable(false)
                 .setSize(WIDTH, HEIGHT)
-                .setScenes(new NappouGame());
+                .setScenes(new LoadingScene(), new NappouGame());
         try (final Frame frame = new Frame(info)) {
             frame.init();
             frame.loop();

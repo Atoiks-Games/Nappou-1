@@ -25,25 +25,16 @@ import org.atoiks.games.nappou1.App;
 import org.atoiks.games.nappou1.enemies.*;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Random;
+import java.util.ArrayList;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.imageio.ImageIO;
-
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
@@ -75,7 +66,7 @@ public class NappouGame extends Scene {
     private int patternFrameIdx = 0;
     private int patternIdx = 0;
 
-    private final AtomicInteger state = new AtomicInteger(State.LOADING);
+    private final AtomicInteger state = new AtomicInteger(State.INIT);
     private boolean protectionFlag = false;
 
     private final PlayerManager boss = new PlayerManager() {
@@ -122,8 +113,8 @@ public class NappouGame extends Scene {
 
     private int initOptSel = 0;
 
-    private BufferedImage imgName;
-    private BufferedImage imgInstructions;
+    private Image imgName;
+    private Image imgInstructions;
 
     private final BulletManager enemyBullets = new BulletManager(64);
 
@@ -150,23 +141,32 @@ public class NappouGame extends Scene {
 
     @Override
     public void enter(int from) {
+        // Map resources only if it is not mapped yet
+        if (musics[0] == null) {
+            musics[0] = (Clip) scene.resources().get("title_screen.wav");
+            musics[1] = (Clip) scene.resources().get("tutorial.wav");
+            musics[2] = (Clip) scene.resources().get("unnamed.wav");
+            musics[3] = (Clip) scene.resources().get("ding_around.wav");
+            musics[4] = (Clip) scene.resources().get("13s_ring.wav");
+            musics[5] = (Clip) scene.resources().get("Hymn-Of-The-Arena.wav");
+            musics[6] = (Clip) scene.resources().get("ding_around_rev.wav");
+            musics[7] = (Clip) scene.resources().get("0418.wav");
+
+            imgName = (Image) scene.resources().get("name.png");
+            imgInstructions = (Image) scene.resources().get("instructions.png");
+
+            BULLET_PATTERNS[0] = new BossData((float[]) scene.resources().get("0.spa"), 30, 0);
+            BULLET_PATTERNS[1] = new BossData((float[]) scene.resources().get("1.spa"), 45, 200, 60);
+            BULLET_PATTERNS[2] = new BossData((float[]) scene.resources().get("2.spa"), 45, 180, 60);
+            BULLET_PATTERNS[3] = new BossData((float[]) scene.resources().get("3.spa"), 45, 200, 80);
+            BULLET_PATTERNS[4] = new BossData((float[]) scene.resources().get("4.spa"), 45, 200, 80);
+            BULLET_PATTERNS[5] = new BossData((float[]) scene.resources().get("5.spa"), 150, 350, 115);
+            BULLET_PATTERNS[6] = new BossData((float[]) scene.resources().get("6.spa"), 125, 200, 100);
+        }
+
         enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
 
         reset();
-    }
-
-    private void loadMusic(int slot, String name) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
-        try (AudioInputStream in = AudioSystem.getAudioInputStream(
-                new BufferedInputStream(
-                        this.getClass().getResourceAsStream("/music/" + name)
-                )
-        )) {
-            Clip clip = AudioSystem.getClip();
-            clip.open(in);
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-            clip.stop();
-            musics[slot] = clip;
-        }
     }
 
     private void reset() {
@@ -202,55 +202,6 @@ public class NappouGame extends Scene {
     @Override
     public boolean update(float dt) {
         switch (state.get()) {
-            case State.LOADING:
-                try {
-                    BULLET_PATTERNS[0] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/0.spa")
-                    ), 30, 0);
-                    BULLET_PATTERNS[1] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/1.spa")
-                    ), 45, 200, 60);
-                    BULLET_PATTERNS[2] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/2.spa")
-                    ), 45, 180, 60);
-                    BULLET_PATTERNS[3] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/3.spa")
-                    ), 45, 200, 80);
-                    BULLET_PATTERNS[4] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/4.spa")
-                    ), 45, 200, 80);
-                    BULLET_PATTERNS[5] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/5.spa")
-                    ), 150, 350, 115);
-                    BULLET_PATTERNS[6] = new BossData(BulletPatternAssembler.assembleFromStream(
-                            this.getClass().getResourceAsStream("/patterns/6.spa")
-                    ), 125, 200, 100);
-
-                    imgName = ImageIO.read(
-                            this.getClass().getResourceAsStream("/name.png")
-                    );
-                    imgInstructions = ImageIO.read(
-                            this.getClass().getResourceAsStream("/instructions.png")
-                    );
-                } catch (IOException ex) {
-                    return false;
-                }
-
-                try {
-                    loadMusic(0, "title_screen.wav");
-                    loadMusic(1, "tutorial.wav");
-                    loadMusic(2, "unnamed.wav");
-                    loadMusic(3, "ding_around.wav");
-                    loadMusic(4, "13s_ring.wav");
-                    loadMusic(5, "Hymn-Of-The-Arena.wav");
-                    loadMusic(6, "ding_around_rev.wav");
-                    loadMusic(7, "0418.wav");
-                } catch (IOException | UnsupportedAudioFileException | LineUnavailableException ex) {
-                    return false;
-                }
-
-                state.set(State.INIT);
-                break;
             case State.PLAYING: {
                 if (gameMode == State.STORY_MODE
                         && patternFrameIdx + 1 < musics.length
@@ -728,10 +679,6 @@ public class NappouGame extends Scene {
         g.setFont(App.SANS_FONT);
 
         switch (state.get()) {
-            case State.LOADING:
-                g.setColor(Color.gray);
-                g.drawString("Now loading...", 0, 12);
-                break;
             case State.INIT:
                 g.drawImage(imgName, 18, 0, null);
                 g.setColor(Color.cyan);

@@ -24,7 +24,6 @@ package org.atoiks.games.nappou1;
  */
 public final class State {
 
-    public static final byte LOADING = -1;
     public static final byte INIT = 0;
     public static final byte PLAYING = 1;
     public static final byte HIT_ANIM = 2;
