@@ -18,7 +18,7 @@
 
 package org.atoiks.games.nappou1;
 
-import java.awt.Graphics;
+import org.atoiks.games.framework2d.IGraphics;
 
 /**
  *
@@ -30,7 +30,7 @@ public abstract class GameComponent {
 
     public abstract void update(float dt);
 
-    public abstract void render(Graphics g);
+    public abstract void render(IGraphics g);
 
     public final void destroy() {
         aliveFlag = false;

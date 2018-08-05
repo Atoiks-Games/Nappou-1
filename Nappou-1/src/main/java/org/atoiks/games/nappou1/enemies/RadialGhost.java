@@ -23,9 +23,10 @@ import org.atoiks.games.nappou1.BulletManager;
 import org.atoiks.games.nappou1.NappouGame;
 
 import java.awt.Color;
-import java.awt.Graphics;
 
 import java.util.Random;
+
+import org.atoiks.games.framework2d.IGraphics;
 
 public class RadialGhost extends Enemy {
 
@@ -70,8 +71,8 @@ public class RadialGhost extends Enemy {
     }
 
     @Override
-    public void render(Graphics g) {
+    public void render(IGraphics g) {
         g.setColor(Color.magenta);
-        g.drawOval((int) (x - COLLISION_RADIUS), (int) (y - COLLISION_RADIUS), (int) (COLLISION_RADIUS * 2), (int) (COLLISION_RADIUS * 2));
+        g.drawCircle((int) x, (int) y, (int) COLLISION_RADIUS);
     }
 }

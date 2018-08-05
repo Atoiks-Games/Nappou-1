@@ -10,30 +10,25 @@ repositories {
     mavenCentral()
 }
 
-allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
-    }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
 dependencies {
-    compile 'com.github.plankp:Jine:-SNAPSHOT'
+    compile project(':Framework2D')
 }
 
 task copyLicense {
     outputs.file new File("$buildDir/LICENSE")
+    outputs.file new File("$buildDir/COPYING")
     outputs.file new File("$buildDir/README.md")
     doLast {
         copy {
-            from "LICENSE"
+            from "../LICENSE"
             into "$buildDir"
         }
         copy {
-            from "README.md"
+            from "../COPYING"
+            into "$buildDir"
+        }
+        copy {
+            from "../README.md"
             into "$buildDir"
         }
     }
