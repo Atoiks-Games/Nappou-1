@@ -35,7 +35,7 @@ public class App {
     static {
         Font local = null;
         try {
-            local = Font.createFont(Font.PLAIN, App.class.getResourceAsStream("/Being_Human.ttf"));
+            local = Font.createFont(Font.PLAIN, App.class.getResourceAsStream("/Logisoso.ttf"));
         } catch (IOException | FontFormatException ex) {
             // Fallback to using a generic SansSerif font
             local = new Font("SansSerif", Font.PLAIN, 16);
