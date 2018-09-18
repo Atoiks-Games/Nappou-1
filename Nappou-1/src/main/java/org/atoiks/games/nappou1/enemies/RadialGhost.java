@@ -21,7 +21,7 @@ package org.atoiks.games.nappou1.enemies;
 import org.atoiks.games.nappou1.PlayerManager;
 import org.atoiks.games.nappou1.BulletManager;
 
-import org.atoiks.games.nappou1.scenes.GameScene;
+import org.atoiks.games.nappou1.scenes.MainScene;
 
 import java.awt.Color;
 
@@ -44,18 +44,18 @@ public class RadialGhost extends Enemy {
         super(3f, 2, 2, player);
         this.x = x;
         this.y = y;
-        this.DIRECTION = (int) Math.signum(GameScene.GAME_CANVAS_WIDTH / 2 - x);
+        this.DIRECTION = (int) Math.signum(MainScene.GAME_CANVAS_WIDTH / 2 - x);
         this.BULLET_POOL = manager;
         this.fireTimer = RND.nextFloat() * FIRE_RATE;
     }
 
     @Override
     public void onUpdate(float dt) {
-        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > GameScene.GAME_CANVAS_WIDTH) {
+        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > MainScene.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;
         }
-        if (y > GameScene.FRAME_HEIGHT) {
+        if (y > MainScene.FRAME_HEIGHT) {
             this.destroy();
             return;
         }

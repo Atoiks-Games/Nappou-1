@@ -56,7 +56,8 @@ public class App {
                 .setTitle("Atoiks Games - Nappou 1")
                 .setResizable(false)
                 .setSize(WIDTH, HEIGHT)
-                .setScenes(new LoadingScene(), new GameScene(), new HelpScene());
+                .setLoader(new LoadingScene())
+                .setGameScenes(new MainScene(), new HelpScene());
         try (final Frame frame = new Frame(info)) {
             frame.init();
             frame.loop();

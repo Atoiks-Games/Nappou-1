@@ -18,7 +18,7 @@
 
 package org.atoiks.games.nappou1.scenes;
 
-import org.atoiks.games.framework2d.Scene;
+import org.atoiks.games.framework2d.GameScene;
 import org.atoiks.games.framework2d.IGraphics;
 
 import org.atoiks.games.nappou1.App;
@@ -47,7 +47,7 @@ import javax.sound.sampled.Clip;
  *
  * @author YTENG
  */
-public class GameScene extends Scene {
+public class MainScene extends GameScene {
 
     private static final Color LIGHT_GRAY_SHADER = new Color(192, 192, 192, 100);
 
@@ -146,31 +146,31 @@ public class GameScene extends Scene {
     public static final int FRAME_HEIGHT = App.HEIGHT;
 
     @Override
-    public void enter(int from) {
-        // Map resources only if it is not mapped yet
-        if (musics[0] == null) {
-            musics[0] = (Clip) scene.resources().get("title_screen.wav");
-            musics[1] = (Clip) scene.resources().get("tutorial.wav");
-            musics[2] = (Clip) scene.resources().get("unnamed.wav");
-            musics[3] = (Clip) scene.resources().get("ding_around.wav");
-            musics[4] = (Clip) scene.resources().get("13s_ring.wav");
-            musics[5] = (Clip) scene.resources().get("Hymn-Of-The-Arena.wav");
-            musics[6] = (Clip) scene.resources().get("ding_around_rev.wav");
-            musics[7] = (Clip) scene.resources().get("0418.wav");
+    public void init() {
+        musics[0] = (Clip) scene.resources().get("title_screen.wav");
+        musics[1] = (Clip) scene.resources().get("tutorial.wav");
+        musics[2] = (Clip) scene.resources().get("unnamed.wav");
+        musics[3] = (Clip) scene.resources().get("ding_around.wav");
+        musics[4] = (Clip) scene.resources().get("13s_ring.wav");
+        musics[5] = (Clip) scene.resources().get("Hymn-Of-The-Arena.wav");
+        musics[6] = (Clip) scene.resources().get("ding_around_rev.wav");
+        musics[7] = (Clip) scene.resources().get("0418.wav");
 
-            imgName = (Image) scene.resources().get("name.png");
+        imgName = (Image) scene.resources().get("name.png");
 
-            BULLET_PATTERNS[0] = new BossData((float[]) scene.resources().get("0.spa"), 30, 0);
-            BULLET_PATTERNS[1] = new BossData((float[]) scene.resources().get("1.spa"), 45, 200, 60);
-            BULLET_PATTERNS[2] = new BossData((float[]) scene.resources().get("2.spa"), 45, 180, 60);
-            BULLET_PATTERNS[3] = new BossData((float[]) scene.resources().get("3.spa"), 45, 200, 80);
-            BULLET_PATTERNS[4] = new BossData((float[]) scene.resources().get("4.spa"), 45, 200, 80);
-            BULLET_PATTERNS[5] = new BossData((float[]) scene.resources().get("5.spa"), 150, 350, 115);
-            BULLET_PATTERNS[6] = new BossData((float[]) scene.resources().get("6.spa"), 125, 200, 100);
-        }
+        BULLET_PATTERNS[0] = new BossData((float[]) scene.resources().get("0.spa"), 30, 0);
+        BULLET_PATTERNS[1] = new BossData((float[]) scene.resources().get("1.spa"), 45, 200, 60);
+        BULLET_PATTERNS[2] = new BossData((float[]) scene.resources().get("2.spa"), 45, 180, 60);
+        BULLET_PATTERNS[3] = new BossData((float[]) scene.resources().get("3.spa"), 45, 200, 80);
+        BULLET_PATTERNS[4] = new BossData((float[]) scene.resources().get("4.spa"), 45, 200, 80);
+        BULLET_PATTERNS[5] = new BossData((float[]) scene.resources().get("5.spa"), 150, 350, 115);
+        BULLET_PATTERNS[6] = new BossData((float[]) scene.resources().get("6.spa"), 125, 200, 100);
 
         enemyBullets.changeBox(0, 0, GAME_CANVAS_WIDTH, FRAME_HEIGHT);
+    }
 
+    @Override
+    public void enter(int from) {
         reset();
     }
 

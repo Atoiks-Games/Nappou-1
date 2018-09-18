@@ -22,13 +22,13 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import org.atoiks.games.framework2d.Scene;
+import org.atoiks.games.framework2d.GameScene;
 import org.atoiks.games.framework2d.IGraphics;
 
 import static org.atoiks.games.nappou1.App.SANS_FONT;
-import static org.atoiks.games.nappou1.scenes.GameScene.CANVAS_WIDTH;
+import static org.atoiks.games.nappou1.scenes.MainScene.CANVAS_WIDTH;
 
-public class HelpScene extends Scene {
+public class HelpScene extends GameScene {
 
     public static final Font TITLE_FONT = SANS_FONT.deriveFont(24f);
     public static final Font INFO_FONT = SANS_FONT.deriveFont(18f);
@@ -73,7 +73,7 @@ public class HelpScene extends Scene {
     public boolean update(float dt) {
         if (scene.keyboard().isKeyPressed(KeyEvent.VK_ENTER)
             || scene.keyboard().isKeyPressed(KeyEvent.VK_ESCAPE)) {
-            scene.switchToScene(1);
+            scene.switchToScene(0);
             return true;
         }
         return true;

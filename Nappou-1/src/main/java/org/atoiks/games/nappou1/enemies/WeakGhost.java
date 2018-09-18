@@ -21,7 +21,7 @@ package org.atoiks.games.nappou1.enemies;
 import org.atoiks.games.nappou1.BulletManager;
 import org.atoiks.games.nappou1.PlayerManager;
 
-import org.atoiks.games.nappou1.scenes.GameScene;
+import org.atoiks.games.nappou1.scenes.MainScene;
 
 import java.awt.Color;
 
@@ -47,7 +47,7 @@ public class WeakGhost extends Enemy {
         this.x = x;
         this.y = y;
         this.Y_LIMIT = limY;
-        this.DIRECTION_X = (int) Math.signum(GameScene.GAME_CANVAS_WIDTH / 2 - x);
+        this.DIRECTION_X = (int) Math.signum(MainScene.GAME_CANVAS_WIDTH / 2 - x);
         this.DIRECTION_Y = y < limY ? 1 : -1;
         this.BULLET_POOL = manager;
         this.fireTimer = RND.nextFloat() * FIRE_RATE;
@@ -60,11 +60,11 @@ public class WeakGhost extends Enemy {
         // | |   FLIPPED BY Y | If at center, go straight down
         // | \--------------> |
         // +------------------+
-        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > GameScene.GAME_CANVAS_WIDTH) {
+        if (x < -COLLISION_RADIUS || x - COLLISION_RADIUS > MainScene.GAME_CANVAS_WIDTH) {
             this.destroy();
             return;
         }
-        if (y > GameScene.FRAME_HEIGHT) {
+        if (y > MainScene.FRAME_HEIGHT) {
             this.destroy();
             return;
         }
