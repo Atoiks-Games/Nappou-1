@@ -27,8 +27,6 @@ import java.awt.Color;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-import javax.imageio.ImageIO;
-
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioInputStream;
@@ -93,8 +91,6 @@ public class LoadingScene extends Scene {
                         loadBulletPattern("5.spa");
                         loadBulletPattern("6.spa");
 
-                        loadImage("name.png");
-
                         loadMusic("title_screen.wav");
                         loadMusic("tutorial.wav");
                         loadMusic("unnamed.wav");
@@ -119,10 +115,6 @@ public class LoadingScene extends Scene {
         scene.resources().put(name, BulletPatternAssembler.assembleFromStream(
                 this.getClass().getResourceAsStream("/patterns/" + name)
         ));
-    }
-
-    private void loadImage(String name) throws IOException {
-        scene.resources().put(name, ImageIO.read(this.getClass().getResourceAsStream('/' + name)));
     }
 
     private void loadMusic(String name) throws IOException, LineUnavailableException, UnsupportedAudioFileException {

@@ -31,6 +31,7 @@ import org.atoiks.games.nappou1.BulletManager;
 
 import org.atoiks.games.nappou1.enemies.*;
 
+import java.awt.Font;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
@@ -120,8 +121,6 @@ public class MainScene extends GameScene {
 
     private int initOptSel = 0;
 
-    private Image imgName;
-
     private final BulletManager enemyBullets = new BulletManager(64);
 
     private final List<Float> playerBulletX = new ArrayList<>(20);
@@ -145,6 +144,8 @@ public class MainScene extends GameScene {
 
     public static final int FRAME_HEIGHT = App.HEIGHT;
 
+    private static final Font TITLE_FONT = App.SANS_FONT.deriveFont(Font.PLAIN, 40f);
+
     @Override
     public void init() {
         musics[0] = (Clip) scene.resources().get("title_screen.wav");
@@ -155,8 +156,6 @@ public class MainScene extends GameScene {
         musics[5] = (Clip) scene.resources().get("Hymn-Of-The-Arena.wav");
         musics[6] = (Clip) scene.resources().get("ding_around_rev.wav");
         musics[7] = (Clip) scene.resources().get("0418.wav");
-
-        imgName = (Image) scene.resources().get("name.png");
 
         BULLET_PATTERNS[0] = new BossData((float[]) scene.resources().get("0.spa"), 30, 0);
         BULLET_PATTERNS[1] = new BossData((float[]) scene.resources().get("1.spa"), 45, 200, 60);
@@ -684,8 +683,10 @@ public class MainScene extends GameScene {
 
         switch (state.get()) {
             case State.INIT:
-                g.drawImage(imgName, 18, 0, null);
                 g.setColor(Color.cyan);
+                g.setFont(TITLE_FONT);
+                g.drawString("Project Nappou", 130, 40);
+                g.setFont(App.SANS_FONT);
                 g.drawString("STORY", CANVAS_WIDTH / 2 - 16, 82);
                 g.drawString("ENDLESS", CANVAS_WIDTH / 2 - 24, 104);
                 g.drawString("HELP", CANVAS_WIDTH / 2 - 12, 126);
